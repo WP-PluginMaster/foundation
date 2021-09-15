@@ -1,0 +1,34 @@
+{
+  "name": "plugin-master/foundation",
+  "description": "The PluginMaster Framework Foundation.",
+  "license": "MIT",
+  "homepage": "https://github.com/WP-Plugin-Master/PluginMaster-Foundation",
+  "support": {
+    "issues": "https://github.com/WP-Plugin-Master/PluginMaster-Foundation/issues",
+    "source": "https://github.com/WP-Plugin-Master/PluginMaster-Foundation"
+  },
+  "authors": [
+    {
+      "name": "AL EMRAN",
+      "email": "emrancu1@gmail.com"
+    }
+  ],
+  "keywords": [
+    "Plugin Master", 
+    "WordPress Plugin Development framework"
+  ],
+  "autoload": {
+    "classmap": [],
+    "psr-4": {
+      "PluginMaster\\Foundation\\": "src/"
+    }
+  },
+  "require": {
+    "php": "^7.0|^8.0",
+    "plugin-master/contracts": "^1.0"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true
+
+  }
+
