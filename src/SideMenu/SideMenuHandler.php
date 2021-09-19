@@ -35,7 +35,6 @@ class SideMenuHandler implements  SideMenuHandlerContract
     protected $parentSlug = [];
 
     /**
-     * set rest api namespace
      * @param $instance
      * @return $this
      */
@@ -131,6 +130,12 @@ class SideMenuHandler implements  SideMenuHandlerContract
             $callbackMethod = isset( $callback[1] ) ? $callback[1] : '__invoke';
 
         }
+
+        if(!$callbackClass || !$callbackMethod){
+            new WP_Error( 'notfound', "Controller Class or Method not found ");
+            exit;
+        }
+
 
         $instance = $object ? $callbackClass : $this->resolveControllerInstance( $callbackClass );
 

@@ -3,6 +3,7 @@
 
 namespace PluginMaster\Foundation\Api;
 
+use WP_Error;
 use Exception;
 use PluginMaster\Contracts\Api\ApiHandler as ApiHandlerContract;
 
@@ -17,35 +18,30 @@ class ApiHandler implements ApiHandlerContract
      * @var
      */
     public $appInstance;
-    /**
-     * callback class name for a route
-     *
-     * @var
-     */
-    public $callbackClass;
+
     /**
      * controller namespace
      * @var string
      */
     protected $controllerNamespace = '';
+
     /**
      * @var array
      */
     protected $args = [];
+
+
     /**
      * wp rest api namespace
      * @var string
      */
     protected $restNamespace = '';
+
+
     /**
      * @var string
      */
     protected $methodSeparator = '@';
-    /**
-     * callback method name of the route data processor class
-     * @var
-     */
-    protected $callbackMethod;
 
     /**
      * api list
@@ -213,12 +209,14 @@ class ApiHandler implements ApiHandlerContract
     protected function generateApiCallback( $callback, $methods ) {
 
         $object = false;
+        $callbackClass = null ;
+        $callbackMethod = null ;
         if ( is_string( $callback ) ) {
 
             $segments = explode( $this->methodSeparator, $callback );
 
-            $this->callbackClass  = class_exists( $segments[0] ) ? $segments[0] : $this->controllerNamespace . $segments[0];
-            $this->callbackMethod = isset( $segments[1] ) ? $segments[1] : '__invoke';
+            $callbackClass  = class_exists( $segments[0] ) ? $segments[0] : $this->controllerNamespace . $segments[0];
+            $callbackMethod = isset( $segments[1] ) ? $segments[1] : '__invoke';
 
         }
 
@@ -226,24 +224,28 @@ class ApiHandler implements ApiHandlerContract
 
             if ( is_object( $callback[0] ) ) {
                 $object              = true;
-                $this->callbackClass = $callback[0];
+                $callbackClass = $callback[0];
             }
 
             if ( is_string( $callback[0] ) ) {
-                $this->callbackClass = class_exists( $callback[0] ) ? $callback[0] : $this->controllerNamespace . $callback[0];
+                $callbackClass = class_exists( $callback[0] ) ? $callback[0] : $this->controllerNamespace . $callback[0];
             }
 
-            $this->callbackMethod = isset( $callback[1] ) ? $callback[1] : '__invoke';
+            $callbackMethod = isset( $callback[1] ) ? $callback[1] : '__invoke';
 
         }
 
+        if(!$callbackClass || !$callbackMethod){
+            new WP_Error( 'notfound', "Controller Class or Method not found ");
+            exit;
+        }
 
-        $instance = $object ? $this->callbackClass : $this->resolveControllerInstance( $this->callbackClass );
+        $instance = $object ? $callbackClass : $this->resolveControllerInstance( $callbackClass );
 
         if ( $this->dynamicRoute ) {
             $callback = [ $this, 'resolveDynamicCallback' ];
         } else {
-            $callback = [ $instance, $this->callbackMethod ];
+            $callback = [ $instance, $callbackMethod ];
         }
 
         return [

@@ -10,7 +10,7 @@ class CacheHandler implements CacheHandlerContract
     /**
      * @var object
      */
-    protected $appInstance;
+    protected $appVersion;
 
     /**
      * @var object
@@ -36,7 +36,7 @@ class CacheHandler implements CacheHandlerContract
      * @param $path
      * @return bool
      */
-    public function createDir( $path ) {
+    private function createDir( $path ) {
         $fullPath = $this->cachePath( $path );
 
         if ( !$this->isExist( $fullPath ) ) {
@@ -50,7 +50,7 @@ class CacheHandler implements CacheHandlerContract
      * @param null $path
      * @return string
      */
-    public function cachePath( $path = null ) {
+    private function cachePath( $path = null ) {
         return $this->cachePath . ($path ? DIRECTORY_SEPARATOR . $path : '');
     }
 
@@ -71,8 +71,8 @@ class CacheHandler implements CacheHandlerContract
      * @param $fileName
      * @return string
      */
-    public function generateFileName( $fileName ) {
-        return hash( 'md5', $this->appInstance->version() . $fileName );
+    private function generateFileName( $fileName ) {
+        return hash( 'md5', $this->appVersion . $fileName );
     }
 
     /**
@@ -82,6 +82,16 @@ class CacheHandler implements CacheHandlerContract
      */
     public function check( $fileName, $directory = null ) {
         return $this->isExist( $this->cacheFilePath( $fileName, $directory ) );
+    }
+
+
+    /**
+     * @param $fileName
+     * @param null $directory
+     * @return false|int
+     */
+    public function get( $fileName, $directory = null ) {
+        return file_get_contents( $this->cacheFilePath( $fileName, $directory ) );
     }
 
     /**
@@ -95,8 +105,8 @@ class CacheHandler implements CacheHandlerContract
      * @param $instance
      * @return mixed
      */
-    public function setAppInstance( $instance ) {
-        $this->appInstance = $instance;
+    public function setAppVersion( $instance ) {
+        $this->appVersion = $instance;
         return $this;
     }
 
