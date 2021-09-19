@@ -51,7 +51,7 @@ class ConfigHandler implements ConfigHandlerContract
             if ( !$fileFound && is_file( $this->addExtension( $filePath ) ) ) {
                 $finalData = $this->set_data( $filePath );
                 $fileFound = true;
-            }else if ( $fileFound ) {
+            } else if ( $fileFound ) {
                 $finalData = $finalData[ $key ] ?? [];
             }
         }
@@ -78,7 +78,7 @@ class ConfigHandler implements ConfigHandlerContract
             $this->data = include $this->addExtension( $filePath );
         }
 
-        return $this->data ;
+        return $this->data;
     }
 
     /**

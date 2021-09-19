@@ -120,7 +120,7 @@ class EnqueueHandler implements EnqueueHandlerContract
 
                 } else {
 
-                    $data  = $this->generateData( $enqueue['data'][0], $enqueue['data'][1], $enqueue['data'][3], $enqueue['data'][4] );
+                    $data                                                                                      = $this->generateData( $enqueue['data'][0], $enqueue['data'][1], $enqueue['data'][3], $enqueue['data'][4] );
                     $this->enqueues[ $enqueue['admin'] ? 'admin' : 'front' ][ $script ? 'script' : 'style' ][] = $data;
 
                 }

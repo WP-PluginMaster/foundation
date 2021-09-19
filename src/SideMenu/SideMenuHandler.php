@@ -2,10 +2,10 @@
 
 namespace PluginMaster\Foundation\SideMenu;
 
-use WP_Error;
 use PluginMaster\Contracts\SideMenu\SideMenuHandler as SideMenuHandlerContract;
+use WP_Error;
 
-class SideMenuHandler implements  SideMenuHandlerContract
+class SideMenuHandler implements SideMenuHandlerContract
 {
 
     /**
@@ -131,8 +131,8 @@ class SideMenuHandler implements  SideMenuHandlerContract
 
         }
 
-        if(!$callbackClass || !$callbackMethod){
-            new WP_Error( 'notfound', "Controller Class or Method not found ");
+        if ( !$callbackClass || !$callbackMethod ) {
+            new WP_Error( 'notfound', "Controller Class or Method not found " );
             exit;
         }
 

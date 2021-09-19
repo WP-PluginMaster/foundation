@@ -3,9 +3,9 @@
 
 namespace PluginMaster\Foundation\Api;
 
-use WP_Error;
 use Exception;
 use PluginMaster\Contracts\Api\ApiHandler as ApiHandlerContract;
+use WP_Error;
 
 class ApiHandler implements ApiHandlerContract
 {
@@ -208,9 +208,9 @@ class ApiHandler implements ApiHandlerContract
      */
     protected function generateApiCallback( $callback, $methods ) {
 
-        $object = false;
-        $callbackClass = null ;
-        $callbackMethod = null ;
+        $object         = false;
+        $callbackClass  = null;
+        $callbackMethod = null;
         if ( is_string( $callback ) ) {
 
             $segments = explode( $this->methodSeparator, $callback );
@@ -223,7 +223,7 @@ class ApiHandler implements ApiHandlerContract
         if ( is_array( $callback ) ) {
 
             if ( is_object( $callback[0] ) ) {
-                $object              = true;
+                $object        = true;
                 $callbackClass = $callback[0];
             }
 
@@ -235,8 +235,8 @@ class ApiHandler implements ApiHandlerContract
 
         }
 
-        if(!$callbackClass || !$callbackMethod){
-            new WP_Error( 'notfound', "Controller Class or Method not found ");
+        if ( !$callbackClass || !$callbackMethod ) {
+            new WP_Error( 'notfound', "Controller Class or Method not found " );
             exit;
         }
 

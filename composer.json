@@ -14,7 +14,7 @@
     }
   ],
   "keywords": [
-    "Plugin Master", 
+    "Plugin Master",
     "WordPress Plugin Development framework"
   ],
   "autoload": {
@@ -29,6 +29,5 @@
   },
   "minimum-stability": "dev",
   "prefer-stable": true
-
-  }
+}
 

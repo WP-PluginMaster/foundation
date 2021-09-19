@@ -2,8 +2,8 @@
 
 namespace PluginMaster\Foundation\Shortcode;
 
-use WP_Error;
 use PluginMaster\Contracts\Shortcode\ShortcodeHandler as ShortcodeHandlerContract;
+use WP_Error;
 
 class ShortcodeHandler implements ShortcodeHandlerContract
 {
@@ -41,6 +41,14 @@ class ShortcodeHandler implements ShortcodeHandlerContract
     public function setControllerNamespace( $namespace ) {
         $this->controllerNamespace = $namespace;
         return $this;
+    }
+
+    /**
+     * @param $shortcodeFile
+     * @return void
+     */
+    public function loadFile( $shortcodeFile ) {
+        require $shortcodeFile;
     }
 
     /**
