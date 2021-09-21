@@ -34,6 +34,8 @@ class EnqueueHandler implements EnqueueHandlerContract
      */
     private $fileLoad = false;
 
+    private $dataGenerated = false;
+
 
     public function setAppInstance( $app ) {
         $this->appInstance = $app;
@@ -65,11 +67,11 @@ class EnqueueHandler implements EnqueueHandlerContract
 
 
         foreach ( $this->enqueues['admin']['inline_script'] ?? [] as $inlineScript ) {
-            $this->{$inlineScript['type']}( $inlineScript['data'] );
+            $this->{$inlineScript['type']}( ...$inlineScript['data'] );
         }
 
         foreach ( $this->enqueues['admin']['inline_style'] ?? [] as $inlineStyle ) {
-            $this->{$inlineStyle['type']}( $inlineStyle['data'] );
+            $this->{$inlineStyle['type']}( ...$inlineStyle['data'] );
         }
 
     }
@@ -86,11 +88,11 @@ class EnqueueHandler implements EnqueueHandlerContract
         }
 
         foreach ( $this->enqueues['front']['inline_script'] ?? [] as $inlineScript ) {
-            $this->{$inlineScript['type']}( $inlineScript['data'] );
+            $this->{$inlineScript['type']}( ...$inlineScript['data'] );
         }
 
         foreach ( $this->enqueues['front']['inline_style'] ?? [] as $inlineStyle ) {
-            $this->{$inlineStyle['type']}( $inlineStyle['data'] );
+            $this->{$inlineStyle['type']}( ...$inlineStyle['data'] );
         }
 
     }
@@ -108,27 +110,41 @@ class EnqueueHandler implements EnqueueHandlerContract
 
     public function initEnqueue( $admin = true ) {
 
-        foreach ( $this->enqueueData as $enqueue ) {
+        if ( !$this->dataGenerated ) {
 
-            if ( $enqueue['admin'] == $admin ) {
 
-                $script = $enqueue['data'][2];
+            foreach ( $this->enqueueData as $enqueue ) {
 
-                if ( $enqueue['type'] ) {
+                if ( $enqueue['admin'] == $admin ) {
 
-                    $this->enqueues[ $enqueue['admin'] ? 'admin' : 'front' ][ $script ? 'inline_script' : 'inline_style' ][] = [ 'data' => $enqueue['data'], 'type' => $enqueue['type'] ];
+                    $script = $enqueue['data'][2];
 
-                } else {
+                    if ( $enqueue['type'] ) {
 
-                    $data  = $this->generateData( $enqueue['data'][0], $enqueue['data'][1], $enqueue['data'][3], $enqueue['data'][4] );
-                    $this->enqueues[ $enqueue['admin'] ? 'admin' : 'front' ][ $script ? 'script' : 'style' ][] = $data;
+                        $this->enqueues[ $enqueue['admin'] ? 'admin' : 'front' ][ $script ? 'inline_script' : 'inline_style' ][] = [ 'data' => $enqueue['data'], 'type' => $enqueue['type'] ];
 
+                    } else {
+
+                        $data       = $this->generateData( $enqueue['data'][0], $enqueue['data'][1], $enqueue['data'][3], $enqueue['data'][4] );
+                        $this->enqueues[ $enqueue['admin'] ? 'admin' : 'front' ][ $script ? 'script' : 'style' ][] = $data;
+
+                    }
                 }
+
             }
 
+
+            $this->dataGenerated = true;
+
+        };
+
+
+        if($admin){
+            $this->addAdminEnqueues();
+        }else{
+            $this->addFrontEnqueues();
         }
 
-        return $this;
     }
 
 
