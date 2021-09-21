@@ -40,7 +40,7 @@ class CacheHandler implements CacheHandlerContract
         $fullPath = $this->cachePath( $path );
 
         if ( !$this->isExist( $fullPath ) ) {
-            return mkdir( $fullPath, 0755 );
+            return mkdir( $fullPath, 0755 , true);
         }
 
         return true;

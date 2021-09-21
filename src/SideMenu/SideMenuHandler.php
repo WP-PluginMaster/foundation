@@ -3,6 +3,7 @@
 namespace PluginMaster\Foundation\SideMenu;
 
 use PluginMaster\Contracts\SideMenu\SideMenuHandler as SideMenuHandlerContract;
+use PluginMaster\Foundation\Resolver\CallbackResolver;
 use WP_Error;
 
 class SideMenuHandler implements SideMenuHandlerContract
@@ -79,75 +80,26 @@ class SideMenuHandler implements SideMenuHandlerContract
      * @param $options
      * @param $slug
      */
-    public function registerParentMenu( $options, $slug ): void {
+    public function registerParentMenu( $options, $slug ) {
+
         $pageTitle = $options['title'] ?? $options['page_title'];
         $menuTitle = $options['menu_title'] ?? $pageTitle;
-        $function  = $this->resolveController( $options['as'] ?? $options['callback'] );
-        $icon      = $options['icon'] ?? '';
-        $position  = $options['position'] ?? 500;
-
-        $capability = $options['capability'] ?? 'manage_options';
 
         add_menu_page(
             $pageTitle,
             $menuTitle,
-            $capability,
+            $options['capability'] ?? 'manage_options',
             $slug,
-            $function,
-            $icon,
-            $position
+            CallbackResolver::resolve( $options['as'] ?? $options['callback'], $this->callbackResolverOptions() ),
+            $options['icon'] ?? '',
+            $options['position'] ?? 100
         );
 
         $this->parentSlug[] = $slug;
     }
 
-    public function resolveController( $callback ) {
-
-        $callbackClass  = null;
-        $callbackMethod = null;
-        $object         = false;
-
-        if ( is_string( $callback ) ) {
-
-            $segments = explode( $this->methodSeparator, $callback );
-
-            $callbackClass  = $this->controllerNamespace . $segments[0];
-            $callbackMethod = isset( $segments[1] ) ? $segments[1] : '__invoke';
-
-        }
-
-        if ( is_array( $callback ) ) {
-
-            if ( is_object( $callback[0] ) ) {
-                $object        = true;
-                $callbackClass = $callback[0];
-            }
-
-            if ( is_string( $callback[0] ) ) {
-                $callbackClass = class_exists( $callback[0] ) ? $callback[0] : $this->controllerNamespace . $callback[0];
-            }
-
-            $callbackMethod = isset( $callback[1] ) ? $callback[1] : '__invoke';
-
-        }
-
-        if ( !$callbackClass || !$callbackMethod ) {
-            new WP_Error( 'notfound', "Controller Class or Method not found " );
-            exit;
-        }
-
-
-        $instance = $object ? $callbackClass : $this->resolveControllerInstance( $callbackClass );
-
-        return [ $instance, $callbackMethod ];
-    }
-
-    /**
-     * @param $class
-     * @return mixed
-     */
-    private function resolveControllerInstance( $class ) {
-        return $this->appInstance ? $this->appInstance->get( $class ) : new $class();
+    private function callbackResolverOptions() {
+        return [ "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace, 'container' => $this->appInstance ] ;
     }
 
     /**
@@ -181,7 +133,6 @@ class SideMenuHandler implements SideMenuHandlerContract
         }
     }
 
-
     /**
      * @param $slug
      * @param $options
@@ -192,21 +143,15 @@ class SideMenuHandler implements SideMenuHandlerContract
 
         $pageTitle = $options['title'] ?? $options['page_title'];
         $menuTitle = $options['menu_title'] ?? $pageTitle;
-        $function  = $this->resolveController( $options['as'] ?? $options['callback'] );
-
-        $position   = $options['position'] ?? null;
-        $parentSlug = $parentSlug ? $parentSlug : ($options['parent'] ?? $options['parent_slug']);
-
-        $capability = $options['capability'] ?? 'manage_options';
 
         add_submenu_page(
-            $parentSlug,
+            $parentSlug ? $parentSlug : ($options['parent'] ?? $options['parent_slug']),
             $pageTitle,
             $menuTitle,
-            $capability,
+            $options['capability'] ?? 'manage_options',
             $slug,
-            $function,
-            $position
+            CallbackResolver::resolve( $options['as'] ?? $options['callback'], $this->callbackResolverOptions() ),
+            $options['position'] ?? ''
         );
     }
 }

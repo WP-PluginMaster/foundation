@@ -5,6 +5,7 @@ namespace PluginMaster\Foundation\Api;
 
 use Exception;
 use PluginMaster\Contracts\Api\ApiHandler as ApiHandlerContract;
+use PluginMaster\Foundation\Resolver\CallbackResolver;
 use WP_Error;
 
 class ApiHandler implements ApiHandlerContract
@@ -24,11 +25,6 @@ class ApiHandler implements ApiHandlerContract
      * @var string
      */
     protected $controllerNamespace = '';
-
-    /**
-     * @var array
-     */
-    protected $args = [];
 
 
     /**
@@ -54,6 +50,12 @@ class ApiHandler implements ApiHandlerContract
      * @var
      */
     protected $middlewareList;
+
+
+    /**
+     * @var
+     */
+    protected $callbackClass;
 
     /**
      * @var bool
@@ -146,16 +148,19 @@ class ApiHandler implements ApiHandlerContract
      * @param $prefix
      * @param $middleware
      * @return bool
-     * @throws Exception
      */
     protected function apiProcess( $route, $method, $callback, $public, $prefix, $middleware ) {
 
         $formattedRoute = $this->formatApiPath( $route );
-        $options        = $this->generateApiCallback( $callback, $method );
+
+        $options = $this->generateApiCallback( $callback, $method );
         if ( !$public ) {
             $options['permission_callback'] = $middleware ? $this->resolveMiddleware( $middleware ) : [ $this, 'check_permission' ];
         }
-        return $this->generateWordPressRestAPi( $this->restNamespace, $formattedRoute, $options, $prefix );
+
+        $rest_base = $prefix . '/' . $formattedRoute . ($this->dynamicRoute ? '(?:/(?P<action>[-\w]+))?' : '');
+
+        return $this->generateWordPressRestAPi( $this->restNamespace, $rest_base, $options );
 
     }
 
@@ -178,11 +183,9 @@ class ApiHandler implements ApiHandlerContract
      * @return string|string[]
      */
     protected function optionalParam( $route ) {
-        $this->args = [];
         preg_match_all( '#\{(.*?)\}#', $route, $match );
         foreach ( $match[0] as $k => $v ) {
             $route = str_replace( '/' . $v, '(?:/(?P<' . str_replace( '?', '', $match[1][ $k ] ) . '>[-\w]+))?', $route );
-            array_push( $this->args, $match[1][ $k ] );
         }
         return $route;
     }
@@ -192,11 +195,9 @@ class ApiHandler implements ApiHandlerContract
      * @return string|string[]
      */
     protected function requiredParam( $route ) {
-        $this->args = [];
         preg_match_all( '#\{(.*?)\}#', $route, $match );
         foreach ( $match[0] as $k => $v ) {
             $route = str_replace( $v, '(?P<' . $match[1][ $k ] . '>[-\w]+)', $route );
-            array_push( $this->args, $match[1][ $k ] );
         }
         return $route;
     }
@@ -208,59 +209,21 @@ class ApiHandler implements ApiHandlerContract
      */
     protected function generateApiCallback( $callback, $methods ) {
 
-        $object         = false;
-        $callbackClass  = null;
-        $callbackMethod = null;
-        if ( is_string( $callback ) ) {
-
-            $segments = explode( $this->methodSeparator, $callback );
-
-            $callbackClass  = class_exists( $segments[0] ) ? $segments[0] : $this->controllerNamespace . $segments[0];
-            $callbackMethod = isset( $segments[1] ) ? $segments[1] : '__invoke';
-
-        }
-
-        if ( is_array( $callback ) ) {
-
-            if ( is_object( $callback[0] ) ) {
-                $object        = true;
-                $callbackClass = $callback[0];
-            }
-
-            if ( is_string( $callback[0] ) ) {
-                $callbackClass = class_exists( $callback[0] ) ? $callback[0] : $this->controllerNamespace . $callback[0];
-            }
-
-            $callbackMethod = isset( $callback[1] ) ? $callback[1] : '__invoke';
-
-        }
-
-        if ( !$callbackClass || !$callbackMethod ) {
-            new WP_Error( 'notfound', "Controller Class or Method not found " );
-            exit;
-        }
-
-        $instance = $object ? $callbackClass : $this->resolveControllerInstance( $callbackClass );
+        $options       = [ "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace, 'container' => $this->appInstance ];
+        $callbackArray = CallbackResolver::resolve( $callback, $options );
 
         if ( $this->dynamicRoute ) {
-            $callback = [ $this, 'resolveDynamicCallback' ];
-        } else {
-            $callback = [ $instance, $callbackMethod ];
+
+            $this->callbackClass = $callbackArray[0];
+            $callbackArray       = [ $this, 'resolveDynamicCallback' ];
+
         }
 
         return [
             "methods"  => $methods,
-            'callback' => $callback,
-            'args'     => $this->args
+            'callback' => $callbackArray,
+            'args'     => []
         ];
-    }
-
-    /**
-     * @param $class
-     * @return mixed
-     */
-    private function resolveControllerInstance( $class ) {
-        return $this->appInstance ? $this->appInstance->get( $class ) : new $class();
     }
 
     /**
@@ -281,13 +244,12 @@ class ApiHandler implements ApiHandlerContract
      * @param $restNamespace
      * @param $route
      * @param $options
-     * @param null $prefix
      * @return bool
      */
-    protected function generateWordPressRestAPi( $restNamespace, $route, $options, $prefix = null ) {
+    protected function generateWordPressRestAPi( $restNamespace, $route, $options ) {
         return register_rest_route(
             $restNamespace,
-            $prefix . '/' . $route . ($this->dynamicRoute ? '(?:/(?P<action>[-\w]+))?' : ''),
+            $route,
             $options
         );
     }
@@ -296,9 +258,10 @@ class ApiHandler implements ApiHandlerContract
 
         $requestMethod = strtolower( $request->get_method() );
 
-        $methodName = $request['action'] ? $this->makeMethodName( $requestMethod, $request['action'] ) : '__invoke';
+        $methodName         = $request['action'] ? $this->makeMethodName( $requestMethod, $request['action'] ) : '__invoke';
+        $controllerInstance = is_object( $this->callbackClass ) ? $this->callbackClass : $this->appInstance->get( $this->callbackClass );
 
-        $this->appInstance->get( $this->callbackClass )->{$methodName}( $request );
+        return $controllerInstance->{$methodName}( $request );
     }
 
     private function makeMethodName( $method, $action ) {

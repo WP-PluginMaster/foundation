@@ -120,7 +120,7 @@ class EnqueueHandler implements EnqueueHandlerContract
 
                 } else {
 
-                    $data                                                                                      = $this->generateData( $enqueue['data'][0], $enqueue['data'][1], $enqueue['data'][3], $enqueue['data'][4] );
+                    $data  = $this->generateData( $enqueue['data'][0], $enqueue['data'][1], $enqueue['data'][3], $enqueue['data'][4] );
                     $this->enqueues[ $enqueue['admin'] ? 'admin' : 'front' ][ $script ? 'script' : 'style' ][] = $data;
 
                 }
@@ -150,7 +150,7 @@ class EnqueueHandler implements EnqueueHandlerContract
      * @param $objectName
      * @param $data
      */
-    public function localizeScriptInit( $id, $objectName, $data ) {
+    public function localizeScript( $id, $objectName, $data ) {
 
         wp_localize_script( $id, $objectName, $data );
 
@@ -160,7 +160,7 @@ class EnqueueHandler implements EnqueueHandlerContract
      * @param $data
      * @param $option
      */
-    public function inlineScriptInit( $data, $option ) {
+    public function inlineScript( $data, $option ) {
 
         wp_add_inline_script( $options['id'] ?? 'pluginMaster_' . uniqid(), $data, $options['position'] ?? 'after' );
 
@@ -170,7 +170,7 @@ class EnqueueHandler implements EnqueueHandlerContract
      * @param $data
      * @param $handle
      */
-    public function inlineStyleInit( $data, $handle ) {
+    public function inlineStyle( $data, $handle ) {
 
         wp_add_inline_style( $handle ?? 'pluginMaster_' . uniqid(), $data );
 

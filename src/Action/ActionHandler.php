@@ -1,12 +1,11 @@
 <?php
 
-namespace PluginMaster\Foundation\Shortcode;
+namespace PluginMaster\Foundation\Action;
 
-use PluginMaster\Contracts\Shortcode\ShortcodeHandler as ShortcodeHandlerContract;
+use PluginMaster\Contracts\Action\ActionHandler as ActionHandlerContract;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
-use WP_Error;
 
-class ShortcodeHandler implements ShortcodeHandlerContract
+class ActionHandler implements ActionHandlerContract
 {
     /**
      * @var string
@@ -48,8 +47,8 @@ class ShortcodeHandler implements ShortcodeHandlerContract
      * @param $shortcodeFile
      * @return void
      */
-    public function loadFile( $shortcodeFile ) {
-        require $shortcodeFile;
+    public function loadFile( $actionFile ) {
+        require $actionFile;
     }
 
     /**
@@ -57,8 +56,8 @@ class ShortcodeHandler implements ShortcodeHandlerContract
      * @param $callback
      */
     public function add( $name, $callback ) {
-        $options = [ "methodSeparator" =>  $this->methodSeparator, 'namespace' => $this->controllerNamespace, 'container' => $this->appInstance];
-        add_shortcode( $name, CallbackResolver::resolve($callback, $options) );
+        $options = [ "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace, 'container' => $this->appInstance ];
+        add_action( $name, CallbackResolver::resolve( $callback, $options ) );
     }
 
 }
