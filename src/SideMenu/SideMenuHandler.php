@@ -151,7 +151,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
             $options['capability'] ?? 'manage_options',
             $slug,
             CallbackResolver::resolve( $options['as'] ?? $options['callback'], $this->callbackResolverOptions() ),
-            $options['position'] ?? ''
+            $options['position'] ?? 10
         );
     }
 }
