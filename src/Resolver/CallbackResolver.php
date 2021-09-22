@@ -1,6 +1,8 @@
 <?php
 namespace PluginMaster\Foundation\Resolver;
 
+use WP_Error;
+
 class CallbackResolver
 {
 
@@ -40,7 +42,7 @@ class CallbackResolver
 
 
         if ( !$callbackClass || !$callbackMethod ) {
-            new WP_Error( 'notfound', "Controller Class or Method not found " );
+            new WP_Error( 'not-found', "Controller Class or Method not found " );
             exit;
         }
 

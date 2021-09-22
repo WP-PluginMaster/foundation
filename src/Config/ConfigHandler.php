@@ -2,9 +2,9 @@
 
 namespace PluginMaster\Foundation\Config;
 
-use PluginMaster\Contracts\Config\ConfigHandler as ConfigHandlerContract;
+use PluginMaster\Contracts\Config\ConfigHandlerInterface ;
 
-class ConfigHandler implements ConfigHandlerContract
+class ConfigHandler implements ConfigHandlerInterface
 {
 
     /**

@@ -4,11 +4,11 @@
 namespace PluginMaster\Foundation\Api;
 
 use Exception;
-use PluginMaster\Contracts\Api\ApiHandler as ApiHandlerContract;
+use PluginMaster\Contracts\Api\ApiHandlerInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 use WP_Error;
 
-class ApiHandler implements ApiHandlerContract
+class ApiHandler implements ApiHandlerInterface
 {
 
     /**

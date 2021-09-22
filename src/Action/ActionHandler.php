@@ -2,10 +2,10 @@
 
 namespace PluginMaster\Foundation\Action;
 
-use PluginMaster\Contracts\Action\ActionHandler as ActionHandlerContract;
+use PluginMaster\Contracts\Action\ActionHandlerInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 
-class ActionHandler implements ActionHandlerContract
+class ActionHandler implements ActionHandlerInterface
 {
     /**
      * @var string
@@ -54,10 +54,11 @@ class ActionHandler implements ActionHandlerContract
     /**
      * @param $name
      * @param $callback
+     * @param int $priority
      */
-    public function add( $name, $callback ) {
+    public function add( $name, $callback, $priority = 10 ) {
         $options = [ "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace, 'container' => $this->appInstance ];
-        add_action( $name, CallbackResolver::resolve( $callback, $options ) );
+        add_action( $name, CallbackResolver::resolve( $callback, $options ), $priority, 20 );
     }
 
 }

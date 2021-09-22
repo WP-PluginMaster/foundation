@@ -2,11 +2,11 @@
 
 namespace PluginMaster\Foundation\SideMenu;
 
-use PluginMaster\Contracts\SideMenu\SideMenuHandler as SideMenuHandlerContract;
+use PluginMaster\Contracts\SideMenu\SideMenuHandlerInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 use WP_Error;
 
-class SideMenuHandler implements SideMenuHandlerContract
+class SideMenuHandler implements SideMenuHandlerInterface
 {
 
     /**

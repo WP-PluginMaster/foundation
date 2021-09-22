@@ -2,9 +2,9 @@
 
 namespace PluginMaster\Foundation\Cache;
 
-use PluginMaster\Contracts\Cache\CacheHandler as CacheHandlerContract;
+use PluginMaster\Contracts\Cache\CacheHandlerInterface;
 
-class CacheHandler implements CacheHandlerContract
+class CacheHandler implements  CacheHandlerInterface
 {
 
     /**

@@ -3,9 +3,9 @@
 namespace PluginMaster\Foundation\Enqueue;
 
 
-use PluginMaster\Contracts\Enqueue\EnqueueHandler as EnqueueHandlerContract;
+use PluginMaster\Contracts\Enqueue\EnqueueHandlerInterface;
 
-class EnqueueHandler implements EnqueueHandlerContract
+class EnqueueHandler implements EnqueueHandlerInterface
 {
 
     /**

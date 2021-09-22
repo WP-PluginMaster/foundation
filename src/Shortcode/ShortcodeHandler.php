@@ -2,11 +2,10 @@
 
 namespace PluginMaster\Foundation\Shortcode;
 
-use PluginMaster\Contracts\Shortcode\ShortcodeHandler as ShortcodeHandlerContract;
+use PluginMaster\Contracts\Shortcode\ShortcodeHandlerInterface ;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
-use WP_Error;
 
-class ShortcodeHandler implements ShortcodeHandlerContract
+class ShortcodeHandler implements ShortcodeHandlerInterface
 {
     /**
      * @var string
