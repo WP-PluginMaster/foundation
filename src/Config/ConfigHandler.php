@@ -52,7 +52,7 @@ class ConfigHandler implements ConfigHandlerInterface
                 $finalData = $this->set_data( $filePath );
                 $fileFound = true;
             } else if ( $fileFound ) {
-                $finalData = $finalData[ $key ] ?? [];
+                $finalData = $finalData[ $key ] ?? '';
             }
         }
 

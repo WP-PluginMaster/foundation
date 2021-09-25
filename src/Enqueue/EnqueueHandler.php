@@ -117,7 +117,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
 
                 if ( $enqueue['admin'] == $admin ) {
 
-                    $script = $enqueue['data'][2];
+                    $script = $enqueue['data'][2]; // script
 
                     if ( $enqueue['type'] ) {
 
@@ -125,7 +125,13 @@ class EnqueueHandler implements EnqueueHandlerInterface
 
                     } else {
 
-                        $data       = $this->generateData( $enqueue['data'][0], $enqueue['data'][1], $enqueue['data'][3], $enqueue['data'][4] );
+                        $data = $this->generateData(
+                            $enqueue['data'][0], //path
+                            $enqueue['data'][1], // options
+                            $enqueue['data'][3], // is_footer
+                            $enqueue['data'][4] // cdn of not
+                        );
+
                         $this->enqueues[ $enqueue['admin'] ? 'admin' : 'front' ][ $script ? 'script' : 'style' ][] = $data;
 
                     }
@@ -148,7 +154,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
     }
 
 
-    private function generateData( $path, $options, $header = false, $cdn = false ) {
+    private function generateData( $path, $options, $footer = false, $cdn = false ) {
 
         $enqueuePath = $cdn ? $path : $this->appInstance->asset( $path );
 
@@ -157,7 +163,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
 
         $dependency = $options['dependency'] ?? ($options['deps'] ?? []);
 
-        return [ $id, $enqueuePath, $dependency, $version, $header ];
+        return [ $id, $enqueuePath, $dependency, $version, $footer ];
     }
 
 
