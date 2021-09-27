@@ -82,8 +82,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
      */
     public function registerParentMenu( $options, $slug ) {
 
-        $pageTitle = $options['title'] ?? $options['page_title'];
-        $menuTitle = $options['menu_title'] ?? $pageTitle;
+        $pageTitle = __( $options['title'] ?? $options['page_title'], $this->appInstance->config('slug') );
+        $menuTitle = __( $options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug') );
 
         add_menu_page(
             $pageTitle,
@@ -141,8 +141,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
      */
     public function addSubMenuPage( $slug, $options, $parentSlug = null ) {
 
-        $pageTitle = $options['title'] ?? $options['page_title'];
-        $menuTitle = $options['menu_title'] ?? $pageTitle;
+        $pageTitle = __( $options['title'] ?? $options['page_title'], $this->appInstance->config('slug'));
+        $menuTitle = __( $options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug') );
 
         add_submenu_page(
             $parentSlug ? $parentSlug : ($options['parent'] ?? $options['parent_slug']),
