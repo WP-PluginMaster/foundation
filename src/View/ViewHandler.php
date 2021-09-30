@@ -1,4 +1,5 @@
 <?php
+
 namespace PluginMaster\Foundation\View;
 
 use Twig\Environment;
@@ -50,14 +51,15 @@ class ViewHandler
     /**
      * @param $path
      * @param array $data
+     * @param bool $noTemplate
      * @return bool
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function render( $path, $data = [] ) {
+    public function render( $path, $data = [], $noTemplate = false ) {
 
-        if ( $this->cachePath ) {
+        if ( !$noTemplate && $this->cachePath ) {
             return $this->resolveTwig( $path, $data );
         } else {
             return $this->resolvePHP( $path, $data );
@@ -72,7 +74,7 @@ class ViewHandler
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    protected function resolveTwig( $path, $data ) {
+    protected function resolveTwig( $path, $data = [] ) {
 
         if ( !$this->twig ) {
 
@@ -98,7 +100,7 @@ class ViewHandler
      * @param $data
      * @return bool
      */
-    protected function resolvePHP( $path, $data ) {
+    protected function resolvePHP( $path, $data = [] ) {
 
         if ( count( $data ) ) {
             extract( $data );
