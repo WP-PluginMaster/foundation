@@ -1,5 +1,5 @@
 <?php
-
+namespace PluginMaster\Foundation\View;
 
 use Twig\Environment;
 use Twig\Error\LoaderError;
