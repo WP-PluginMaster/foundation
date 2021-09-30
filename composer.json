@@ -25,7 +25,8 @@
   },
   "require": {
     "php": "^7.0|^8.0",
-    "plugin-master/contracts": "^1.0"
+    "plugin-master/contracts": "^1.0",
+    "twig/twig": "^3.0"
   },
   "minimum-stability": "dev",
   "prefer-stable": true
