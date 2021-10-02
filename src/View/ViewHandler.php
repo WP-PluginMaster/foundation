@@ -2,12 +2,9 @@
 
 namespace PluginMaster\Foundation\View;
 
-use Twig\Environment;
 use Twig\Error\LoaderError;
 use Twig\Error\RuntimeError;
 use Twig\Error\SyntaxError;
-use Twig\Loader\FilesystemLoader;
-use Twig\TwigFilter;
 
 class ViewHandler
 {
@@ -78,22 +75,14 @@ class ViewHandler
 
         if ( !$this->twig ) {
 
-            $loader = new FilesystemLoader( $this->viewPath );
-
-            $this->twig = new Environment( $loader, [
-                'cache' => $this->cachePath,
-            ] );
-
-            $filter = new TwigFilter( 'trans', function ( $string ) {
-                return __( $string, $this->textDomain );
-            } );
-
-            $this->twig->addFilter( $filter );
+            $twig       = new TwigHandler( $this->viewPath, $this->cachePath, $this->textDomain );
+            $this->twig = $twig->twigEnvironment;
         }
 
         echo $this->twig->render( $path . '.php', $data );
         return true;
     }
+
 
     /**
      * @param $path
