@@ -32,6 +32,11 @@ class ViewHandler
     protected $textDomain;
 
     /**
+     * @var string
+     */
+    protected $twigAutoReload;
+
+    /**
      * @param $viewPath
      * @param array $twigOptions
      * @return $this
@@ -41,6 +46,7 @@ class ViewHandler
         $this->viewPath   = $viewPath;
         $this->cachePath  = $twigOptions['cache_path'] ?? null;
         $this->textDomain = $twigOptions['text_domain'] ?? null;
+        $this->twigAutoReload = $twigOptions['auto_reload'] ?? false;
 
         return $this;
     }
@@ -55,6 +61,14 @@ class ViewHandler
      * @throws SyntaxError
      */
     public function render( $path, $data = [], $noTemplate = false ) {
+
+        $viewPath = '';
+
+        foreach ( explode( '.', $path ) as $path ) {
+            $viewPath .= '/' . $path;
+        }
+
+        $path =  $viewPath ;
 
         if ( !$noTemplate && $this->cachePath ) {
             return $this->resolveTwig( $path, $data );
@@ -75,7 +89,7 @@ class ViewHandler
 
         if ( !$this->twig ) {
 
-            $twig       = new TwigHandler( $this->viewPath, $this->cachePath, $this->textDomain );
+            $twig       = new TwigHandler( $this->viewPath, $this->cachePath, $this->textDomain, $this->twigAutoReload );
             $this->twig = $twig->twigEnvironment;
         }
 
@@ -95,41 +109,8 @@ class ViewHandler
             extract( $data );
         }
 
-        $viewPath = '';
-
-        foreach ( explode( '.', $path ) as $path ) {
-            $viewPath .= '/' . $path;
-        }
-
-        include $this->viewPath . $viewPath . '.php';
+        include $this->viewPath . $path . '.php';
         return true;
-    }
-
-
-    /**
-     * @param null $path
-     */
-    public function removeCache( $path = null ) {
-        $this->recessiveDelete( $this->cachePath . ($path ? DIRECTORY_SEPARATOR . $path : null) );
-    }
-
-
-    /**
-     * @param $dirPath
-     */
-    protected function recessiveDelete( $dirPath ) {
-        if ( is_dir( $dirPath ) ) {
-            $objects = scandir( $dirPath );
-            foreach ( $objects as $file ) {
-                if ( !in_array( $file, [ '..', '.' ] ) ) {
-                    if ( filetype( $dirPath . "/" . $file ) == "dir" )
-                        $this->recessiveDelete( $dirPath . "/" . $file );
-                    else unlink( $dirPath . "/" . $file );
-                }
-            }
-            reset( $objects );
-            rmdir( $dirPath );
-        }
     }
 
 }

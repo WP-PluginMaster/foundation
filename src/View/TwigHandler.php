@@ -15,12 +15,13 @@ class TwigHandler
     public $twigEnvironment ;
     protected $textDomain ;
 
-    public function __construct( $viewPath, $cachePath, $textDomain) {
+    public function __construct( $viewPath, $cachePath, $textDomain, $twigAutoReload = false) {
         $this->textDomain = $textDomain;
         $loader = new FilesystemLoader( $viewPath );
 
         $this->twigEnvironment = new Environment( $loader, [
             'cache' => $cachePath,
+            'auto_reload' => $twigAutoReload,
         ] );
 
         $this->addFunction();
