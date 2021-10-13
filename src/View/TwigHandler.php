@@ -12,17 +12,18 @@ use Twig\TwigFunction;
 class TwigHandler
 {
 
-    public $twigEnvironment ;
-    protected $textDomain ;
+    public $twigEnvironment;
+    protected $textDomain;
 
-    public function __construct( $viewPath, $cachePath, $textDomain, $twigAutoReload = false) {
+    public function __construct($viewPath, $cachePath, $textDomain, $twigAutoReload = false)
+    {
         $this->textDomain = $textDomain;
-        $loader = new FilesystemLoader( $viewPath );
+        $loader           = new FilesystemLoader($viewPath);
 
-        $this->twigEnvironment = new Environment( $loader, [
-            'cache' => $cachePath,
+        $this->twigEnvironment = new Environment($loader, [
+            'cache'       => $cachePath,
             'auto_reload' => $twigAutoReload,
-        ] );
+        ]);
 
         $this->addFunction();
         $this->addFilter();
@@ -30,65 +31,67 @@ class TwigHandler
     }
 
 
-    private function addFunction(){
+    private function addFunction()
+    {
 
 
-        $fn = new TwigFunction( 'fn', function ( ...$param ) {
+        $fn = new TwigFunction('fn', function (...$param) {
             $functionName = $param[0] ?? null;
-            if ( $functionName ) {
-                unset( $param[0] );
+            if ($functionName) {
+                unset($param[0]);
 
-                return $functionName( ...$param );
+                return $functionName(...$param);
             }
             return null;
-        } );
+        });
 
-        $this->twigEnvironment->addFunction( $fn );
+        $this->twigEnvironment->addFunction($fn);
     }
 
 
-    private function addFilter(){
+    private function addFilter()
+    {
 
-        $translationFilter = new TwigFilter( 'trans', function ( $data ) {
-            return __( $data, $this->textDomain );
-        } );
+        $translationFilter = new TwigFilter('trans', function ($data) {
+            return __($data, $this->textDomain);
+        });
 
-        $this->twigEnvironment->addFilter( $translationFilter );
+        $this->twigEnvironment->addFilter($translationFilter);
 
-        $shortCodeFilter = new TwigFilter( 'shortcode', function ( $data ) {
-            return do_shortcode( "$data" );
-        } );
+        $shortCodeFilter = new TwigFilter('shortcode', function ($data) {
+            return do_shortcode("$data");
+        });
 
-        $this->twigEnvironment->addFilter( $shortCodeFilter );
+        $this->twigEnvironment->addFilter($shortCodeFilter);
 
-        $functionFilter = new TwigFilter( 'fn', function ( $data, ...$param ) {
+        $functionFilter = new TwigFilter('fn', function ($data, ...$param) {
             $functionName = $param[0] ?? null;
-            if ( $functionName && function_exists( $param[0] ) ) {
-                unset( $param[0] );
+            if ($functionName && function_exists($param[0])) {
+                unset($param[0]);
 
-                return $functionName( $data, ...$param );
+                return $functionName($data, ...$param);
 
             }
 
             return $data;
-        } );
+        });
 
-        $this->twigEnvironment->addFilter( $functionFilter );
+        $this->twigEnvironment->addFilter($functionFilter);
 
 
-        $applyFilter = new TwigFilter( 'apply_filter', function ( $string, ...$param ) {
+        $applyFilter = new TwigFilter('apply_filter', function ($string, ...$param) {
             $filterName = $param[0] ?? null;
-            if ( $filterName ) {
-                unset( $param[0] );
+            if ($filterName) {
+                unset($param[0]);
 
-                return apply_filters( $filterName, $string, ...$param );
+                return apply_filters($filterName, $string, ...$param);
 
             }
 
             return $string;
-        } );
+        });
 
-        $this->twigEnvironment->addFilter( $applyFilter );
+        $this->twigEnvironment->addFilter($applyFilter);
 
     }
 

@@ -39,7 +39,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
      * @param $instance
      * @return $this
      */
-    public function setAppInstance( $instance ) {
+    public function setAppInstance($instance)
+    {
         $this->appInstance = $instance;
         return $this;
     }
@@ -48,7 +49,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
     /**
      * @param $namespace
      */
-    public function setNamespace( $namespace ) {
+    public function setNamespace($namespace)
+    {
         $this->controllerNamespace = $namespace;
         return $this;
     }
@@ -56,7 +58,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
     /**
      * @param  $sidemenu
      */
-    public function loadMenuFile( $sidemenu ) {
+    public function loadMenuFile($sidemenu)
+    {
         $this->fileLoad = true;
 
         require $sidemenu;
@@ -66,13 +69,14 @@ class SideMenuHandler implements SideMenuHandlerInterface
     }
 
 
-    public function addMenuPage( $slug, $options ) {
-        if ( $this->fileLoad ) {
-            $this->registerParentMenu( $options, $slug );
+    public function addMenuPage($slug, $options)
+    {
+        if ($this->fileLoad) {
+            $this->registerParentMenu($options, $slug);
         } else {
-            add_action( 'admin_menu', function () use ( $options, $slug ) {
-                $this->registerParentMenu( $options, $slug );
-            } );
+            add_action('admin_menu', function () use ($options, $slug) {
+                $this->registerParentMenu($options, $slug);
+            });
         }
     }
 
@@ -80,17 +84,18 @@ class SideMenuHandler implements SideMenuHandlerInterface
      * @param $options
      * @param $slug
      */
-    public function registerParentMenu( $options, $slug ) {
+    public function registerParentMenu($options, $slug)
+    {
 
-        $pageTitle = __( $options['title'] ?? $options['page_title'], $this->appInstance->config('slug') );
-        $menuTitle = __( $options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug') );
+        $pageTitle = __($options['title'] ?? $options['page_title'], $this->appInstance->config('slug'));
+        $menuTitle = __($options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug'));
 
         add_menu_page(
             $pageTitle,
             $menuTitle,
             $options['capability'] ?? 'manage_options',
             $slug,
-            CallbackResolver::resolve( $options['as'] ?? $options['callback'], $this->callbackResolverOptions() ),
+            CallbackResolver::resolve($options['as'] ?? $options['callback'], $this->callbackResolverOptions()),
             $options['icon'] ?? '',
             $options['position'] ?? 100
         );
@@ -98,51 +103,58 @@ class SideMenuHandler implements SideMenuHandlerInterface
         $this->parentSlug[] = $slug;
     }
 
-    private function callbackResolverOptions() {
-        return [ "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace, 'container' => $this->appInstance ] ;
+    private function callbackResolverOptions()
+    {
+        return [
+            "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,
+            'container'       => $this->appInstance
+        ];
     }
 
     /**
      *remove first sub-menu
      */
-    public function removeFirstSubMenu() {
+    public function removeFirstSubMenu()
+    {
 
-        foreach ( $this->parentSlug as $slug ) {
-            remove_submenu_page( $slug, $slug );
+        foreach ($this->parentSlug as $slug) {
+            remove_submenu_page($slug, $slug);
         }
 
     }
 
-    public function validateOptions( $options, $parent = true ) {
+    public function validateOptions($options, $parent = true)
+    {
         $requiredOption = [];
 
-        if ( !isset( $options['title'] ) || !isset( $options['page_title'] ) ) {
+        if (!isset($options['title']) || !isset($options['page_title'])) {
             $requiredOption[] = 'title/page_title';
         }
 
-        if ( !isset( $options['as'] ) || !isset( $options['callback'] ) ) {
+        if (!isset($options['as']) || !isset($options['callback'])) {
             $requiredOption[] = 'as/callback';
         }
 
-        if ( !$parent && (!isset( $options['parent'] ) || !isset( $options['parent_slug'] )) ) {
+        if (!$parent && (!isset($options['parent']) || !isset($options['parent_slug']))) {
             $requiredOption[] = 'parent/parent_slug';
         }
 
-        if ( !empty( $requiredOption ) ) {
-            new WP_Error( 'option_missing', "SideNav Option missing. Required Options: " . implode( ', ', $requiredOption ) );
+        if (!empty($requiredOption)) {
+            new WP_Error('option_missing', "SideNav Option missing. Required Options: ".implode(', ', $requiredOption));
         }
     }
 
     /**
      * @param $slug
      * @param $options
-     * @param null $parentSlug
+     * @param  null  $parentSlug
      * @return mixed
      */
-    public function addSubMenuPage( $slug, $options, $parentSlug = null ) {
+    public function addSubMenuPage($slug, $options, $parentSlug = null)
+    {
 
-        $pageTitle = __( $options['title'] ?? $options['page_title'], $this->appInstance->config('slug'));
-        $menuTitle = __( $options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug') );
+        $pageTitle = __($options['title'] ?? $options['page_title'], $this->appInstance->config('slug'));
+        $menuTitle = __($options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug'));
 
         add_submenu_page(
             $parentSlug ? $parentSlug : ($options['parent'] ?? $options['parent_slug']),
@@ -150,7 +162,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
             $menuTitle,
             $options['capability'] ?? 'manage_options',
             $slug,
-            CallbackResolver::resolve( $options['as'] ?? $options['callback'], $this->callbackResolverOptions() ),
+            CallbackResolver::resolve($options['as'] ?? $options['callback'], $this->callbackResolverOptions()),
             $options['position'] ?? 10
         );
     }

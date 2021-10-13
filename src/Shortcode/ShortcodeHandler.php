@@ -2,7 +2,7 @@
 
 namespace PluginMaster\Foundation\Shortcode;
 
-use PluginMaster\Contracts\Shortcode\ShortcodeHandlerInterface ;
+use PluginMaster\Contracts\Shortcode\ShortcodeHandlerInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 
 class ShortcodeHandler implements ShortcodeHandlerInterface
@@ -29,7 +29,8 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param $instance
      * @return $this
      */
-    public function setAppInstance( $instance ) {
+    public function setAppInstance($instance)
+    {
         $this->appInstance = $instance;
         return $this;
     }
@@ -38,7 +39,8 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param $namespace
      * @return $this
      */
-    public function setControllerNamespace( $namespace ) {
+    public function setControllerNamespace($namespace)
+    {
         $this->controllerNamespace = $namespace;
         return $this;
     }
@@ -47,7 +49,8 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param $shortcodeFile
      * @return void
      */
-    public function loadFile( $shortcodeFile ) {
+    public function loadFile($shortcodeFile)
+    {
         require $shortcodeFile;
     }
 
@@ -55,9 +58,13 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param $name
      * @param $callback
      */
-    public function add( $name, $callback ) {
-        $options = [ "methodSeparator" =>  $this->methodSeparator, 'namespace' => $this->controllerNamespace, 'container' => $this->appInstance];
-        add_shortcode( $name, CallbackResolver::resolve($callback, $options) );
+    public function add($name, $callback)
+    {
+        $options = [
+            "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,
+            'container'       => $this->appInstance
+        ];
+        add_shortcode($name, CallbackResolver::resolve($callback, $options));
     }
 
 }
