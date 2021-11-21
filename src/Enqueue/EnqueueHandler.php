@@ -168,6 +168,8 @@ class EnqueueHandler implements EnqueueHandlerInterface {
 
 			return $tag;
 		}
+
+		return $tag;
 	}
 
 	/**
