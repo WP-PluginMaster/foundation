@@ -89,7 +89,7 @@ class EnqueueHandler implements EnqueueHandlerInterface {
 
 				if ( $script ) {
 
-					$attribute = $enqueue['attributes'] ?? false;
+					$attribute = $enqueue['options']['attributes'] ?? false;
 
 					if ( $attribute && is_array( $attribute ) ) {
 						$this->attributes[ $id ] = $attribute;
