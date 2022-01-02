@@ -165,7 +165,6 @@ class EnqueueHandler implements EnqueueHandlerInterface
      */
     public function processAttributes($tag, $handle, $source)
     {
-
         if (isset($this->attributes[$handle])) {
             $attribute = $this->attributes[$handle];
             $attribute['src'] = $source;
@@ -185,9 +184,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
      */
     public function localizeScript($id, $objectName, $data)
     {
-
         wp_localize_script($id, $objectName, $data);
-
     }
 
     /**
@@ -207,8 +204,6 @@ class EnqueueHandler implements EnqueueHandlerInterface
      */
     public function inlineStyle($data, $handle)
     {
-
         wp_add_inline_style($handle ?? 'pluginMaster_'.uniqid(), $data);
-
     }
 }
