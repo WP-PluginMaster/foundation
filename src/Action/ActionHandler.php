@@ -3,6 +3,7 @@
 namespace PluginMaster\Foundation\Action;
 
 use PluginMaster\Contracts\Action\ActionHandlerInterface;
+use PluginMaster\Contracts\Foundation\ApplicationInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 
 class ActionHandler implements ActionHandlerInterface
@@ -10,26 +11,26 @@ class ActionHandler implements ActionHandlerInterface
     /**
      * @var string
      */
-    protected $methodSeparator = '@';
+    protected string $methodSeparator = '@';
 
 
     /**
      * controller namespace
      * @var string
      */
-    protected $controllerNamespace = '';
+    protected string $controllerNamespace = '';
 
     /**
      * @var object
      */
-    protected $appInstance;
+    protected object $appInstance;
 
 
     /**
      * @param $instance
      * @return $this
      */
-    public function setAppInstance($instance)
+    public function setAppInstance(ApplicationInterface $instance): ActionHandlerInterface
     {
         $this->appInstance = $instance;
         return $this;
@@ -39,27 +40,27 @@ class ActionHandler implements ActionHandlerInterface
      * @param $namespace
      * @return $this
      */
-    public function setControllerNamespace($namespace)
+    public function setControllerNamespace(string $namespace): ActionHandlerInterface
     {
         $this->controllerNamespace = $namespace;
         return $this;
     }
 
     /**
-     * @param $shortcodeFile
+     * @param $actionFile
      * @return void
      */
-    public function loadFile($actionFile)
+    public function loadFile(string $actionFile): void
     {
         require $actionFile;
     }
 
     /**
      * @param $name
-     * @param $callback
+     * @param $callback string | callable
      * @param  int  $priority
      */
-    public function add($name, $callback, $priority = 10)
+    public function add(string $name, $callback, $priority = 10): void
     {
         $options = [
             "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,

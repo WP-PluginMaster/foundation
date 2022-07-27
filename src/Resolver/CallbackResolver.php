@@ -7,22 +7,26 @@ use WP_Error;
 class CallbackResolver
 {
 
-    public static function resolve($callback, $options = [])
+    /**
+     * @param $callback
+     * @param  array  $options
+     * @return callable
+     */
+    public static function resolve($callback, array $options = []): callable
     {
-
         $methodSeparator = $options['methodSeparator'] ?? '@';
-        $namespace       = $options['namespace'] ?? '';
-        $container       = $options['container'] ?? null;
+        $namespace = $options['namespace'] ?? '';
+        $container = $options['container'] ?? null;
 
-        $object         = false;
-        $callbackClass  = null;
+        $object = false;
+        $callbackClass = null;
         $callbackMethod = null;
 
         if (is_string($callback)) {
 
             $segments = explode($methodSeparator, $callback);
 
-            $callbackClass  = class_exists($segments[0]) ? $segments[0] : $namespace.$segments[0];
+            $callbackClass = class_exists($segments[0]) ? $segments[0] : $namespace.$segments[0];
             $callbackMethod = isset($segments[1]) ? $segments[1] : '__invoke';
 
         }
@@ -30,7 +34,7 @@ class CallbackResolver
         if (is_array($callback)) {
 
             if (is_object($callback[0])) {
-                $object        = true;
+                $object = true;
                 $callbackClass = $callback[0];
             }
 

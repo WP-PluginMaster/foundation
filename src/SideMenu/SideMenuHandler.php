@@ -2,6 +2,7 @@
 
 namespace PluginMaster\Foundation\SideMenu;
 
+use PluginMaster\Contracts\Foundation\ApplicationInterface;
 use PluginMaster\Contracts\SideMenu\SideMenuHandlerInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 use WP_Error;
@@ -10,36 +11,36 @@ class SideMenuHandler implements SideMenuHandlerInterface
 {
 
     /**
-     * @var
+     * @var ApplicationInterface
      */
-    public $appInstance;
+    public ApplicationInterface $appInstance;
 
     /**
      * @var bool
      */
-    public $fileLoad = false;
+    public bool $fileLoad = false;
 
     /**
      * @var string
      */
-    protected $controllerNamespace = "";
+    protected string $controllerNamespace = "";
 
     /**
      * @var string
      */
-    protected $methodSeparator = "@";
+    protected string $methodSeparator = "@";
 
 
     /**
      * @var array
      */
-    protected $parentSlug = [];
+    protected array $parentSlug = [];
 
     /**
      * @param $instance
      * @return $this
      */
-    public function setAppInstance($instance)
+    public function setAppInstance(ApplicationInterface $instance): SideMenuHandlerInterface
     {
         $this->appInstance = $instance;
         return $this;
@@ -49,7 +50,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
     /**
      * @param $namespace
      */
-    public function setNamespace($namespace)
+    public function setNamespace(string $namespace): SideMenuHandlerInterface
     {
         $this->controllerNamespace = $namespace;
         return $this;
@@ -58,7 +59,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
     /**
      * @param  $sidemenu
      */
-    public function loadMenuFile($sidemenu)
+    public function loadMenuFile(string $sidemenu): SideMenuHandlerInterface
     {
         $this->fileLoad = true;
 
@@ -69,7 +70,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
     }
 
 
-    public function addMenuPage($slug, $options)
+    public function addMenuPage(string $slug, array $options): void
     {
         if ($this->fileLoad) {
             $this->registerParentMenu($options, $slug);
@@ -84,9 +85,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
      * @param $options
      * @param $slug
      */
-    public function registerParentMenu($options, $slug)
+    public function registerParentMenu(array $options, string $slug): void
     {
-
         $pageTitle = __($options['title'] ?? $options['page_title'], $this->appInstance->config('slug'));
         $menuTitle = __($options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug'));
 
@@ -95,7 +95,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
             $menuTitle,
             $options['capability'] ?? 'manage_options',
             $slug,
-            CallbackResolver::resolve($options['as'] ?? $options['callback'], $this->callbackResolverOptions()),
+            $this->getCallback($options),
             $options['icon'] ?? '',
             $options['position'] ?? 100
         );
@@ -103,27 +103,31 @@ class SideMenuHandler implements SideMenuHandlerInterface
         $this->parentSlug[] = $slug;
     }
 
-    private function callbackResolverOptions()
+    private function getCallback(array $options)
+    {
+        $callback = $options['as'] ?? $options['callback'];
+        return $callback ? CallbackResolver::resolve($callback, $this->callbackResolverOptions()) : '';
+    }
+
+    private function callbackResolverOptions(): array
     {
         return [
             "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,
-            'container'       => $this->appInstance
+            'container' => $this->appInstance
         ];
     }
 
     /**
      *remove first sub-menu
      */
-    public function removeFirstSubMenu()
+    public function removeFirstSubMenu(): void
     {
-
         foreach ($this->parentSlug as $slug) {
             remove_submenu_page($slug, $slug);
         }
-
     }
 
-    public function validateOptions($options, $parent = true)
+    public function validateOptions(array $options, bool $parent = true): void
     {
         $requiredOption = [];
 
@@ -150,7 +154,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
      * @param  null  $parentSlug
      * @return mixed
      */
-    public function addSubMenuPage($slug, $options, $parentSlug = null)
+    public function addSubMenuPage(string $slug, array $options, string $parentSlug = ''): void
     {
 
         $pageTitle = __($options['title'] ?? $options['page_title'], $this->appInstance->config('slug'));
@@ -162,7 +166,7 @@ class SideMenuHandler implements SideMenuHandlerInterface
             $menuTitle,
             $options['capability'] ?? 'manage_options',
             $slug,
-            CallbackResolver::resolve($options['as'] ?? $options['callback'], $this->callbackResolverOptions()),
+            $this->getCallback($options),
             $options['position'] ?? 10
         );
     }

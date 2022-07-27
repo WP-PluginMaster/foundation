@@ -6,26 +6,24 @@ use PluginMaster\Contracts\Cache\CacheHandlerInterface;
 
 class CacheHandler implements CacheHandlerInterface
 {
-
     /**
-     * @var object
+     * @var string
      */
-    protected $appVersion;
+    protected string $appVersion;
 
     /**
-     * @var object
+     * @var string
      */
-    protected $cachePath;
+    protected string $cachePath;
 
     /**
-     * @param $fileName
-     * @param $content
-     * @param  null  $directory
+     * @param  string  $fileName
+     * @param  string  $content
+     * @param  string  $directory
      * @return false|int
      */
-    public function createFile($fileName, $content, $directory = null)
+    public function createFile(string $fileName, string $content, string $directory = '')
     {
-
         $this->createDir($directory);
 
         $fullPath = $this->cacheFilePath($fileName, $directory);
@@ -37,7 +35,7 @@ class CacheHandler implements CacheHandlerInterface
      * @param $path
      * @return bool
      */
-    private function createDir($path)
+    private function createDir(string $path): bool
     {
         $fullPath = $this->cachePath($path);
 
@@ -49,25 +47,29 @@ class CacheHandler implements CacheHandlerInterface
     }
 
     /**
-     * @param  null  $path
+     * @param  string  $path
      * @return string
      */
-    private function cachePath($path = null)
+    private function cachePath(string $path = null): string
     {
         return $this->cachePath.($path ? DIRECTORY_SEPARATOR.$path : '');
     }
 
-    public function isExist($path)
+    /**
+     * @param $path
+     * @return bool
+     */
+    public function isExist(string $path): bool
     {
         return file_exists($path);
     }
 
     /**
-     * @param $fileName
-     * @param  null  $directory
+     * @param  string  $fileName
+     * @param  string  $directory
      * @return string
      */
-    public function cacheFilePath($fileName, $directory = null)
+    public function cacheFilePath(string $fileName, string $directory = null): string
     {
         return $this->cachePath.($directory ? DIRECTORY_SEPARATOR.$directory : '').DIRECTORY_SEPARATOR.$this->generateFileName($fileName);
     }
@@ -76,47 +78,48 @@ class CacheHandler implements CacheHandlerInterface
      * @param $fileName
      * @return string
      */
-    private function generateFileName($fileName)
+    private function generateFileName(string $fileName): string
     {
         return hash('md5', $this->appVersion.$fileName);
     }
 
     /**
-     * @param $fileName
-     * @param  null  $directory
+     * @param  string  $fileName
+     * @param  string  $directory
      * @return false|int
      */
-    public function check($fileName, $directory = null)
+    public function check(string $fileName, string $directory = ''): bool
     {
         return $this->isExist($this->cacheFilePath($fileName, $directory));
     }
 
 
     /**
-     * @param $fileName
-     * @param  null  $directory
-     * @return false|int
+     * @param  string  $fileName
+     * @param  string  $directory
+     * @return string
      */
-    public function get($fileName, $directory = null)
+    public function get(string $fileName, string $directory = ''): string
     {
         return file_get_contents($this->cacheFilePath($fileName, $directory));
     }
 
     /**
+     * @param  string  $fileName
      * @return false|int
      */
-    public function reset()
+    public function reset(string $fileName = ''): bool
     {
-        return rmdir($this->cachePath);
+        return rmdir($this->cachePath($fileName));
     }
 
     /**
-     * @param $instance
+     * @param  string  $appVersion
      * @return mixed
      */
-    public function setAppVersion($instance)
+    public function setAppVersion(string $appVersion): CacheHandlerInterface
     {
-        $this->appVersion = $instance;
+        $this->appVersion = $appVersion;
         return $this;
     }
 
@@ -124,7 +127,7 @@ class CacheHandler implements CacheHandlerInterface
      * @param $path
      * @return mixed
      */
-    public function setCachePath($path)
+    public function setCachePath(string $path): CacheHandlerInterface
     {
         $this->cachePath = $path;
         return $this;

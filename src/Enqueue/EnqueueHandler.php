@@ -4,91 +4,77 @@ namespace PluginMaster\Foundation\Enqueue;
 
 
 use PluginMaster\Contracts\Enqueue\EnqueueHandlerInterface;
+use PluginMaster\Contracts\Foundation\ApplicationInterface;
 
 class EnqueueHandler implements EnqueueHandlerInterface
 {
+    /**
+     * @var array
+     */
+    public array $enqueueData = [];
 
     /**
      * @var array
      */
-    public $enqueueData = [];
+    public array $attributes = [];
 
     /**
-     * @var array
+     * @var ApplicationInterface
      */
-    public $attributes = [];
-
-    /**
-     * @var null
-     */
-    protected $appInstance = null;
+    protected ApplicationInterface $appInstance;
 
 
-    public function setAppInstance($app)
+    public function setAppInstance(ApplicationInterface $app): EnqueueHandlerInterface
     {
-
         $this->appInstance = $app;
-
         return $this;
     }
 
     /**
      * @param $enqueueFile
      */
-    public function loadEnqueueFile($enqueueFile)
+    public function loadEnqueueFile(string $enqueueFile)
     {
-
         require $enqueueFile;
-
     }
 
     /**
      * @param $config
      */
-    public function register($config): void
+    public function register(array $config): void
     {
-
         $this->enqueueData[] = $config;
-
     }
 
-
-    public function initEnqueue()
+    /**
+     * initiate Enqueue
+     */
+    public function initEnqueue(): void
     {
-
-
         $version = $this->appInstance->version();
 
         $hookBasedEnqueue = [];
-
         foreach ($this->enqueueData as $enqueue) {
-
-
             if (isset($enqueue['type'])) {
-
                 $hookBasedEnqueue[$enqueue['hook']]['inline'][] = [
-                    'fn'    => $enqueue['type'],
+                    'fn' => $enqueue['type'],
                     'param' => $enqueue['param']
                 ];
 
             } else {
 
                 $path = $this->formatPath($enqueue['path'], $enqueue['cdn'] ?? false);
-
                 if (gettype($enqueue['options']) == 'string') {
 
                     $id = $enqueue['options'];
-
                     $dependency = [];
 
                 } else {
 
                     $id = ($enqueue['options']['id'] ?? ($enqueue['options']['handle'] ?? base64_encode($path)));
-
                     $dependency = $enqueue['options']['dependency'] ?? ($enqueue['options']['deps'] ?? []);
 
                 }
-
 
                 $script = $enqueue['script'] ?? false;
 
@@ -123,7 +109,6 @@ class EnqueueHandler implements EnqueueHandlerInterface
             }
         }
 
-
         foreach ($hookBasedEnqueue as $hook => $enqueueData) {
 
             add_action($hook, function () use ($enqueueData) {
@@ -145,12 +130,10 @@ class EnqueueHandler implements EnqueueHandlerInterface
         }
 
         add_filter('script_loader_tag', [$this, 'processAttributes'], 59, 3);
-
     }
 
-    private function formatPath($path, $cdn)
+    private function formatPath(string $path, bool $cdn): string
     {
-
         return $cdn ? $path : $this->appInstance->asset($path);
     }
 
@@ -160,7 +143,6 @@ class EnqueueHandler implements EnqueueHandlerInterface
      * @param $tag
      * @param $handle
      * @param $source
-     *
      * @return string
      */
     public function processAttributes($tag, $handle, $source)
@@ -182,7 +164,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
      * @param $objectName
      * @param $data
      */
-    public function localizeScript($id, $objectName, $data)
+    public function localizeScript(string $id, string $objectName, array $data): void
     {
         wp_localize_script($id, $objectName, $data);
     }
@@ -191,18 +173,17 @@ class EnqueueHandler implements EnqueueHandlerInterface
      * @param $data
      * @param $option
      */
-    public function inlineScript($data, $option)
+    public function inlineScript(string $data, array $option): void
     {
         $id = gettype($option) == 'string' ? $option : ($option['id'] ?? ($option['handle'] ?? 'pluginMaster_'.uniqid()));
         wp_add_inline_script($id, $data, $option['position'] ?? 'after');
-
     }
 
     /**
      * @param $data
      * @param $handle
      */
-    public function inlineStyle($data, $handle)
+    public function inlineStyle(string $data, string $handle): void
     {
         wp_add_inline_style($handle ?? 'pluginMaster_'.uniqid(), $data);
     }

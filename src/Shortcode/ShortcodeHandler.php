@@ -2,6 +2,7 @@
 
 namespace PluginMaster\Foundation\Shortcode;
 
+use PluginMaster\Contracts\Foundation\ApplicationInterface;
 use PluginMaster\Contracts\Shortcode\ShortcodeHandlerInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 
@@ -10,26 +11,26 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
     /**
      * @var string
      */
-    protected $methodSeparator = '@';
+    protected string $methodSeparator = '@';
 
 
     /**
      * controller namespace
      * @var string
      */
-    protected $controllerNamespace = '';
+    protected string $controllerNamespace = '';
 
     /**
-     * @var object
+     * @var ApplicationInterface
      */
-    protected $appInstance;
+    protected ApplicationInterface $appInstance;
 
 
     /**
-     * @param $instance
+     * @param  ApplicationInterface  $instance
      * @return $this
      */
-    public function setAppInstance($instance)
+    public function setAppInstance(ApplicationInterface $instance): ShortcodeHandlerInterface
     {
         $this->appInstance = $instance;
         return $this;
@@ -39,7 +40,7 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param $namespace
      * @return $this
      */
-    public function setControllerNamespace($namespace)
+    public function setControllerNamespace(string $namespace): ShortcodeHandlerInterface
     {
         $this->controllerNamespace = $namespace;
         return $this;
@@ -49,7 +50,7 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param $shortcodeFile
      * @return void
      */
-    public function loadFile($shortcodeFile)
+    public function loadFile(string $shortcodeFile): void
     {
         require $shortcodeFile;
     }
@@ -58,11 +59,11 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param $name
      * @param $callback
      */
-    public function add($name, $callback)
+    public function add(string $name, $callback): void
     {
         $options = [
             "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,
-            'container'       => $this->appInstance
+            'container' => $this->appInstance
         ];
         add_shortcode($name, CallbackResolver::resolve($callback, $options));
     }

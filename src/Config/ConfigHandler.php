@@ -6,15 +6,14 @@ use PluginMaster\Contracts\Config\ConfigHandlerInterface;
 
 class ConfigHandler implements ConfigHandlerInterface
 {
-
-    /**
-     * @var
-     */
-    protected $filePath;
     /**
      * @var string
      */
-    protected $fileExtension = '.php';
+    protected string $filePath;
+    /**
+     * @var string
+     */
+    protected string $fileExtension = '.php';
     /**
      * @var array
      */
@@ -24,7 +23,7 @@ class ConfigHandler implements ConfigHandlerInterface
      * @param $path
      * @return mixed
      */
-    public function setPath($path)
+    public function setPath(string $path): string
     {
         return $this->filePath = $path;
     }
@@ -33,21 +32,20 @@ class ConfigHandler implements ConfigHandlerInterface
      * @param $key
      * @return array|mixed|null
      */
-    public function resolveData($key)
+    public function resolveData(string $key)
     {
-
         $key_tree = explode('.', $key);
 
         $finalData = [];
         $fileFound = false;
-        $filePath  = '';
+        $filePath = '';
 
         foreach ($key_tree as $key) {
 
             $filePath .= DIRECTORY_SEPARATOR.$key;
 
             if (!$fileFound && is_file($this->addExtension($filePath))) {
-                $finalData = $this->set_data($filePath);
+                $finalData = $this->setData($filePath);
                 $fileFound = true;
             } else {
                 if ($fileFound) {
@@ -63,7 +61,7 @@ class ConfigHandler implements ConfigHandlerInterface
      * @param $file
      * @return string
      */
-    protected function addExtension($file)
+    protected function addExtension(string $file): string
     {
         return $this->filePath.$file.$this->fileExtension;
     }
@@ -72,14 +70,11 @@ class ConfigHandler implements ConfigHandlerInterface
      * @param $filePath
      * @return mixed
      */
-    protected function set_data($filePath)
+    protected function setData(string $filePath)
     {
-
         if (!isset($this->data[$filePath])) {
-
             $this->data = include $this->addExtension($filePath);
         }
-
         return $this->data;
     }
 
@@ -87,7 +82,7 @@ class ConfigHandler implements ConfigHandlerInterface
      * @param $path
      * @return bool
      */
-    protected function isDir($path)
+    protected function isDir(string $path): bool
     {
         return is_file($this->filePath.DIRECTORY_SEPARATOR.$path);
     }
@@ -96,7 +91,7 @@ class ConfigHandler implements ConfigHandlerInterface
      * @param $path
      * @return bool
      */
-    protected function isFile($path)
+    protected function isFile(string $path): bool
     {
         return is_file($this->addExtension($path));
     }
