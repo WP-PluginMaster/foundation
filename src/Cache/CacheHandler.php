@@ -22,7 +22,7 @@ class CacheHandler implements CacheHandlerInterface
      * @param  string  $directory
      * @return false|int
      */
-    public function createFile(string $fileName, string $content, string $directory = '')
+    public function createFile(string $fileName, string $content, string $directory = ''): int|false
     {
         $this->createDir($directory);
 
@@ -32,7 +32,7 @@ class CacheHandler implements CacheHandlerInterface
     }
 
     /**
-     * @param $path
+     * @param  string  $path
      * @return bool
      */
     private function createDir(string $path): bool
@@ -47,7 +47,7 @@ class CacheHandler implements CacheHandlerInterface
     }
 
     /**
-     * @param  string  $path
+     * @param  string|null  $path
      * @return string
      */
     private function cachePath(string $path = null): string
@@ -56,7 +56,7 @@ class CacheHandler implements CacheHandlerInterface
     }
 
     /**
-     * @param $path
+     * @param  string  $path
      * @return bool
      */
     public function isExist(string $path): bool
@@ -66,16 +66,18 @@ class CacheHandler implements CacheHandlerInterface
 
     /**
      * @param  string  $fileName
-     * @param  string  $directory
+     * @param  string|null  $directory
      * @return string
      */
     public function cacheFilePath(string $fileName, string $directory = null): string
     {
-        return $this->cachePath.($directory ? DIRECTORY_SEPARATOR.$directory : '').DIRECTORY_SEPARATOR.$this->generateFileName($fileName);
+        return $this->cachePath.($directory ? DIRECTORY_SEPARATOR.$directory : '').DIRECTORY_SEPARATOR.$this->generateFileName(
+                $fileName
+            );
     }
 
     /**
-     * @param $fileName
+     * @param  string  $fileName
      * @return string
      */
     private function generateFileName(string $fileName): string
@@ -86,7 +88,7 @@ class CacheHandler implements CacheHandlerInterface
     /**
      * @param  string  $fileName
      * @param  string  $directory
-     * @return false|int
+     * @return bool
      */
     public function check(string $fileName, string $directory = ''): bool
     {
@@ -106,7 +108,7 @@ class CacheHandler implements CacheHandlerInterface
 
     /**
      * @param  string  $fileName
-     * @return false|int
+     * @return bool
      */
     public function reset(string $fileName = ''): bool
     {
@@ -115,19 +117,19 @@ class CacheHandler implements CacheHandlerInterface
 
     /**
      * @param  string  $appVersion
-     * @return mixed
+     * @return self
      */
-    public function setAppVersion(string $appVersion): CacheHandlerInterface
+    public function setAppVersion(string $appVersion): self
     {
         $this->appVersion = $appVersion;
         return $this;
     }
 
     /**
-     * @param $path
-     * @return mixed
+     * @param  string  $path
+     * @return self
      */
-    public function setCachePath(string $path): CacheHandlerInterface
+    public function setCachePath(string $path): self
     {
         $this->cachePath = $path;
         return $this;

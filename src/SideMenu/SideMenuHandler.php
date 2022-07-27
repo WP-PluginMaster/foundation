@@ -37,10 +37,10 @@ class SideMenuHandler implements SideMenuHandlerInterface
     protected array $parentSlug = [];
 
     /**
-     * @param $instance
+     * @param  ApplicationInterface  $instance
      * @return $this
      */
-    public function setAppInstance(ApplicationInterface $instance): SideMenuHandlerInterface
+    public function setAppInstance(ApplicationInterface $instance): self
     {
         $this->appInstance = $instance;
         return $this;
@@ -48,18 +48,20 @@ class SideMenuHandler implements SideMenuHandlerInterface
 
 
     /**
-     * @param $namespace
+     * @param  string  $namespace
+     * @return SideMenuHandler
      */
-    public function setNamespace(string $namespace): SideMenuHandlerInterface
+    public function setNamespace(string $namespace): self
     {
         $this->controllerNamespace = $namespace;
         return $this;
     }
 
     /**
-     * @param  $sidemenu
+     * @param  string  $sidemenu
+     * @return SideMenuHandler
      */
-    public function loadMenuFile(string $sidemenu): SideMenuHandlerInterface
+    public function loadMenuFile(string $sidemenu): self
     {
         $this->fileLoad = true;
 
@@ -82,8 +84,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
     }
 
     /**
-     * @param $options
-     * @param $slug
+     * @param  array  $options
+     * @param  string  $slug
      */
     public function registerParentMenu(array $options, string $slug): void
     {
@@ -112,7 +114,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
     private function callbackResolverOptions(): array
     {
         return [
-            "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,
+            "methodSeparator" => $this->methodSeparator,
+            'namespace' => $this->controllerNamespace,
             'container' => $this->appInstance
         ];
     }
@@ -149,14 +152,13 @@ class SideMenuHandler implements SideMenuHandlerInterface
     }
 
     /**
-     * @param $slug
-     * @param $options
-     * @param  null  $parentSlug
-     * @return mixed
+     * @param  string  $slug
+     * @param  array  $options
+     * @param  string  $parentSlug
+     * @return void
      */
     public function addSubMenuPage(string $slug, array $options, string $parentSlug = ''): void
     {
-
         $pageTitle = __($options['title'] ?? $options['page_title'], $this->appInstance->config('slug'));
         $menuTitle = __($options['menu_title'] ?? $pageTitle, $this->appInstance->config('slug'));
 

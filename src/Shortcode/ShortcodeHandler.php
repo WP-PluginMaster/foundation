@@ -30,24 +30,24 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
      * @param  ApplicationInterface  $instance
      * @return $this
      */
-    public function setAppInstance(ApplicationInterface $instance): ShortcodeHandlerInterface
+    public function setAppInstance(ApplicationInterface $instance): self
     {
         $this->appInstance = $instance;
         return $this;
     }
 
     /**
-     * @param $namespace
+     * @param  string  $namespace
      * @return $this
      */
-    public function setControllerNamespace(string $namespace): ShortcodeHandlerInterface
+    public function setControllerNamespace(string $namespace): self
     {
         $this->controllerNamespace = $namespace;
         return $this;
     }
 
     /**
-     * @param $shortcodeFile
+     * @param  string  $shortcodeFile
      * @return void
      */
     public function loadFile(string $shortcodeFile): void
@@ -56,13 +56,14 @@ class ShortcodeHandler implements ShortcodeHandlerInterface
     }
 
     /**
-     * @param $name
+     * @param  string  $name
      * @param $callback
      */
     public function add(string $name, $callback): void
     {
         $options = [
-            "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,
+            "methodSeparator" => $this->methodSeparator,
+            'namespace' => $this->controllerNamespace,
             'container' => $this->appInstance
         ];
         add_shortcode($name, CallbackResolver::resolve($callback, $options));

@@ -27,7 +27,7 @@ class ActionHandler implements ActionHandlerInterface
 
 
     /**
-     * @param $instance
+     * @param  ApplicationInterface  $instance
      * @return $this
      */
     public function setAppInstance(ApplicationInterface $instance): ActionHandlerInterface
@@ -37,7 +37,7 @@ class ActionHandler implements ActionHandlerInterface
     }
 
     /**
-     * @param $namespace
+     * @param  string  $namespace
      * @return $this
      */
     public function setControllerNamespace(string $namespace): ActionHandlerInterface
@@ -47,7 +47,7 @@ class ActionHandler implements ActionHandlerInterface
     }
 
     /**
-     * @param $actionFile
+     * @param  string  $actionFile
      * @return void
      */
     public function loadFile(string $actionFile): void
@@ -56,15 +56,16 @@ class ActionHandler implements ActionHandlerInterface
     }
 
     /**
-     * @param $name
+     * @param  string  $name
      * @param $callback string | callable
      * @param  int  $priority
      */
     public function add(string $name, $callback, $priority = 10): void
     {
         $options = [
-            "methodSeparator" => $this->methodSeparator, 'namespace' => $this->controllerNamespace,
-            'container'       => $this->appInstance
+            "methodSeparator" => $this->methodSeparator,
+            'namespace' => $this->controllerNamespace,
+            'container' => $this->appInstance
         ];
         add_action($name, CallbackResolver::resolve($callback, $options), $priority, 20);
     }

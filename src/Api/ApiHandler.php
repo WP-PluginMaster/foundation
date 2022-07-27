@@ -3,8 +3,11 @@
 
 namespace PluginMaster\Foundation\Api;
 
+use DI\DependencyException;
+use DI\NotFoundException;
 use Exception;
 use PluginMaster\Contracts\Api\ApiHandlerInterface;
+use PluginMaster\Contracts\Foundation\ApplicationInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 use WP_REST_Request;
 
@@ -17,9 +20,9 @@ class ApiHandler implements ApiHandlerInterface
     public bool $fileLoad = false;
 
     /**
-     * @var
+     * @var ApplicationInterface
      */
-    public object $appInstance;
+    public ApplicationInterface $appInstance;
 
     /**
      * controller namespace
@@ -66,11 +69,11 @@ class ApiHandler implements ApiHandlerInterface
     /**
      * set rest api namespace
      *
-     * @param $instance
+     * @param  ApplicationInterface  $instance
      *
      * @return $this
      */
-    public function setAppInstance($instance): ApiHandlerInterface
+    public function setAppInstance(ApplicationInterface $instance): self
     {
         $this->appInstance = $instance;
 
@@ -80,11 +83,11 @@ class ApiHandler implements ApiHandlerInterface
     /**
      * set rest api namespace
      *
-     * @param $namespace
+     * @param  string  $namespace
      *
-     * @return $this
+     * @return self
      */
-    public function setNamespace($namespace): ApiHandlerInterface
+    public function setNamespace(string $namespace): self
     {
         $this->restNamespace = $namespace;
 
@@ -98,7 +101,7 @@ class ApiHandler implements ApiHandlerInterface
      *
      * @return $this
      */
-    public function setMiddleware($list): ApiHandlerInterface
+    public function setMiddleware($list): self
     {
         $this->middlewareList = $list;
 
@@ -110,7 +113,7 @@ class ApiHandler implements ApiHandlerInterface
      *
      * @return $this
      */
-    public function setControllerNamespace($namespace): ApiHandlerInterface
+    public function setControllerNamespace($namespace): self
     {
         $this->controllerNamespace = $namespace;
 
@@ -120,7 +123,7 @@ class ApiHandler implements ApiHandlerInterface
     /**
      * @param $routes
      */
-    public function loadRoutes($routes): ApiHandlerInterface
+    public function loadRoutes($routes): self
     {
         $this->fileLoad = true;
 
@@ -140,7 +143,7 @@ class ApiHandler implements ApiHandlerInterface
      *
      * @throws Exception
      */
-    public function register($api, $dynamicRoute = false): void
+    public function register($api, bool $dynamicRoute = false): void
     {
         $this->restApis[] = ['api_data' => $api, 'dynamic' => $dynamicRoute];
     }
@@ -170,14 +173,14 @@ class ApiHandler implements ApiHandlerInterface
         $options = $this->generateApiCallback($callback, $method);
         if (!$public) {
             $options['permission_callback'] = $middleware ? $this->resolveMiddleware($middleware) : [
-                $this, 'check_permission'
+                $this,
+                'check_permission'
             ];
         }
 
         $restBase = $prefix.'/'.$formattedRoute.($this->dynamicRoute ? '(?:/(?P<action>[-\w]+))?' : '');
 
         return $this->generateWordPressRestAPi($this->restNamespace, $restBase, $options);
-
     }
 
     /**
@@ -189,8 +192,8 @@ class ApiHandler implements ApiHandlerInterface
      */
     protected function formatApiPath(string $route)
     {
-        if (strpos($route, '}') !== false) {
-            if (strpos($route, '?}') !== false) {
+        if (str_contains($route, '}')) {
+            if (str_contains($route, '?}')) {
                 $route = $this->optionalParam($route);
             } else {
                 $route = $this->requiredParam($route);
@@ -201,11 +204,11 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param $route
+     * @param  string  $route
      *
-     * @return string|string[]
+     * @return string
      */
-    protected function optionalParam(string $route)
+    protected function optionalParam(string $route): string
     {
         preg_match_all('#\{(.*?)\}#', $route, $match);
         foreach ($match[0] as $k => $v) {
@@ -216,11 +219,11 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param $route
+     * @param  string  $route
      *
-     * @return string|string[]
+     * @return string
      */
-    protected function requiredParam(string $route)
+    protected function requiredParam(string $route): string
     {
         preg_match_all('#\{(.*?)\}#', $route, $match);
         foreach ($match[0] as $k => $v) {
@@ -231,14 +234,13 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param $callback string | callable
-     * @param $methods
+     * @param  string  $callback
+     * @param  string  $methods
      *
      * @return array
      */
-    protected function generateApiCallback($callback, string $methods): array
+    protected function generateApiCallback(mixed $callback, string $methods): array
     {
-
         $options = [
             "methodSeparator" => $this->methodSeparator,
             'namespace' => $this->controllerNamespace,
@@ -248,10 +250,8 @@ class ApiHandler implements ApiHandlerInterface
         $callbackArray = CallbackResolver::resolve($callback, $options);
 
         if ($this->dynamicRoute) {
-
             $this->callbackClass = $callbackArray[0];
             $callbackArray = [$this, 'resolveDynamicCallback'];
-
         }
 
         return [
@@ -262,15 +262,18 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param $middleware
+     * @param  string  $middleware
      *
      * @return array|bool
+     * @throws DependencyException
+     * @throws NotFoundException
      */
     protected function resolveMiddleware(string $middleware)
     {
-
         if (isset($this->middlewareList[$middleware])) {
-            $instance = $this->appInstance ? $this->appInstance->get($this->middlewareList[$middleware]) : new $this->middlewareList[$middleware]();
+            $instance = $this->appInstance ? $this->appInstance->get(
+                $this->middlewareList[$middleware]
+            ) : new $this->middlewareList[$middleware]();
 
             return [$instance, 'handler'];
         }
@@ -298,12 +301,14 @@ class ApiHandler implements ApiHandlerInterface
      * @param  WP_REST_Request  $request
      * @return mixed
      */
-    public function resolveDynamicCallback(WP_REST_Request $request)
+    public function resolveDynamicCallback(WP_REST_Request $request): mixed
     {
         $requestMethod = strtolower($request->get_method());
 
         $methodName = $request['action'] ? $this->makeMethodName($requestMethod, $request['action']) : '__invoke';
-        $controllerInstance = is_object($this->callbackClass) ? $this->callbackClass : $this->appInstance->get($this->callbackClass);
+        $controllerInstance = is_object($this->callbackClass) ? $this->callbackClass : $this->appInstance->get(
+            $this->callbackClass
+        );
 
         return $controllerInstance->{$methodName}($request);
     }

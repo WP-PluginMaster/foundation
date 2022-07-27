@@ -11,7 +11,6 @@ use Twig\TwigFunction;
 
 class TwigHandler
 {
-
     /**
      * @var Environment
      */
@@ -94,7 +93,6 @@ class TwigHandler
         });
 
         $this->twigEnvironment->addFilter($applyFilter);
-
     }
 
 }

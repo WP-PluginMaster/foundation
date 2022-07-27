@@ -8,11 +8,11 @@ class CallbackResolver
 {
 
     /**
-     * @param $callback
+     * @param  mixed  $callback
      * @param  array  $options
      * @return callable
      */
-    public static function resolve($callback, array $options = []): callable
+    public static function resolve(mixed $callback, array $options = []): callable
     {
         $methodSeparator = $options['methodSeparator'] ?? '@';
         $namespace = $options['namespace'] ?? '';
@@ -23,16 +23,13 @@ class CallbackResolver
         $callbackMethod = null;
 
         if (is_string($callback)) {
-
             $segments = explode($methodSeparator, $callback);
 
             $callbackClass = class_exists($segments[0]) ? $segments[0] : $namespace.$segments[0];
-            $callbackMethod = isset($segments[1]) ? $segments[1] : '__invoke';
-
+            $callbackMethod = $segments[1] ?? '__invoke';
         }
 
         if (is_array($callback)) {
-
             if (is_object($callback[0])) {
                 $object = true;
                 $callbackClass = $callback[0];
@@ -42,8 +39,7 @@ class CallbackResolver
                 $callbackClass = class_exists($callback[0]) ? $callback[0] : $namespace.$callback[0];
             }
 
-            $callbackMethod = isset($callback[1]) ? $callback[1] : '__invoke';
-
+            $callbackMethod = $callback[1] ?? '__invoke';
         }
 
 

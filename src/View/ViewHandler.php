@@ -11,20 +11,20 @@ class ViewHandler
     /**
      * @var string
      */
-    protected $viewPath;
+    protected string $viewPath;
 
     /**
      * @var array
      */
-    protected $options;
+    protected array $options;
 
     /**
-     * @var TwigHandler
+     * @var TwigHandler|null
      */
-    protected $twig;
+    protected ?TwigHandler $twig = null;
 
     /**
-     * @param $viewPath
+     * @param  string  $viewPath
      * @param  array  $options
      */
     public function __construct(string $viewPath, array $options = [])
@@ -42,7 +42,7 @@ class ViewHandler
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    public function render(string $viewPath, array $data = [], bool $noTemplate = false)
+    public function render(string $viewPath, array $data = [], bool $noTemplate = false): bool
     {
         $path = $this->pathResolve($viewPath);
         $templateName = $this->options['template']['name'] ?? 'php';
@@ -67,14 +67,14 @@ class ViewHandler
     }
 
     /**
-     * @param $path
-     * @param $data
+     * @param  string  $path
+     * @param  array  $data
      * @return bool
      * @throws LoaderError
      * @throws RuntimeError
      * @throws SyntaxError
      */
-    protected function resolveTwig(string $path, array $data = [])
+    protected function resolveTwig(string $path, array $data = []): bool
     {
         if (!$this->twig) {
             $textDomain = $this->options['text_domain'] ?? '';
@@ -89,11 +89,11 @@ class ViewHandler
 
 
     /**
-     * @param $path
-     * @param $data
+     * @param  string  $path
+     * @param  array  $data
      * @return bool
      */
-    protected function resolvePHP(string $path, array $data = [])
+    protected function resolvePHP(string $path, array $data = []): bool
     {
         if (count($data)) {
             extract($data);

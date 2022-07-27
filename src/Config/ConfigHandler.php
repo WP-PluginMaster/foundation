@@ -20,7 +20,7 @@ class ConfigHandler implements ConfigHandlerInterface
     private $data = [];
 
     /**
-     * @param $path
+     * @param  string  $path
      * @return mixed
      */
     public function setPath(string $path): string
@@ -29,10 +29,10 @@ class ConfigHandler implements ConfigHandlerInterface
     }
 
     /**
-     * @param $key
+     * @param  string  $key
      * @return array|mixed|null
      */
-    public function resolveData(string $key)
+    public function resolveData(string $key): mixed
     {
         $key_tree = explode('.', $key);
 
@@ -41,7 +41,6 @@ class ConfigHandler implements ConfigHandlerInterface
         $filePath = '';
 
         foreach ($key_tree as $key) {
-
             $filePath .= DIRECTORY_SEPARATOR.$key;
 
             if (!$fileFound && is_file($this->addExtension($filePath))) {
@@ -58,7 +57,7 @@ class ConfigHandler implements ConfigHandlerInterface
     }
 
     /**
-     * @param $file
+     * @param  string  $file
      * @return string
      */
     protected function addExtension(string $file): string
@@ -67,7 +66,7 @@ class ConfigHandler implements ConfigHandlerInterface
     }
 
     /**
-     * @param $filePath
+     * @param  string  $filePath
      * @return mixed
      */
     protected function setData(string $filePath)
@@ -79,7 +78,7 @@ class ConfigHandler implements ConfigHandlerInterface
     }
 
     /**
-     * @param $path
+     * @param  string  $path
      * @return bool
      */
     protected function isDir(string $path): bool
@@ -88,7 +87,7 @@ class ConfigHandler implements ConfigHandlerInterface
     }
 
     /**
-     * @param $path
+     * @param  string  $path
      * @return bool
      */
     protected function isFile(string $path): bool

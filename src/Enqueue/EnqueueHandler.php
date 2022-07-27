@@ -24,22 +24,22 @@ class EnqueueHandler implements EnqueueHandlerInterface
     protected ApplicationInterface $appInstance;
 
 
-    public function setAppInstance(ApplicationInterface $app): EnqueueHandlerInterface
+    public function setAppInstance(ApplicationInterface $app): self
     {
         $this->appInstance = $app;
         return $this;
     }
 
     /**
-     * @param $enqueueFile
+     * @param  string  $enqueueFile
      */
-    public function loadEnqueueFile(string $enqueueFile)
+    public function loadEnqueueFile(string $enqueueFile): void
     {
         require $enqueueFile;
     }
 
     /**
-     * @param $config
+     * @param  array  $config
      */
     public function register(array $config): void
     {
@@ -60,26 +60,19 @@ class EnqueueHandler implements EnqueueHandlerInterface
                     'fn' => $enqueue['type'],
                     'param' => $enqueue['param']
                 ];
-
             } else {
-
                 $path = $this->formatPath($enqueue['path'], $enqueue['cdn'] ?? false);
                 if (gettype($enqueue['options']) == 'string') {
-
                     $id = $enqueue['options'];
                     $dependency = [];
-
                 } else {
-
                     $id = ($enqueue['options']['id'] ?? ($enqueue['options']['handle'] ?? base64_encode($path)));
                     $dependency = $enqueue['options']['dependency'] ?? ($enqueue['options']['deps'] ?? []);
-
                 }
 
                 $script = $enqueue['script'] ?? false;
 
                 if ($script) {
-
                     $attribute = $enqueue['options']['attributes'] ?? false;
 
                     if ($attribute && is_array($attribute)) {
@@ -93,9 +86,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
                         $version,
                         $enqueue['in_footer'] ?? false
                     ];
-
                 } else {
-
                     $hookBasedEnqueue[$enqueue['hook']]['style'][] = [
                         $id,
                         $path,
@@ -103,16 +94,12 @@ class EnqueueHandler implements EnqueueHandlerInterface
                         $version,
                         $options['media'] ?? 'all'
                     ];
-
                 }
-
             }
         }
 
         foreach ($hookBasedEnqueue as $hook => $enqueueData) {
-
             add_action($hook, function () use ($enqueueData) {
-
                 foreach ($enqueueData['inline'] ?? [] as $enqueue) {
                     $this->{$enqueue['fn']}(...$enqueue['param']);
                 }
@@ -124,9 +111,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
                 foreach ($enqueueData['style'] ?? [] as $enqueue) {
                     wp_enqueue_style(...$enqueue);
                 }
-
             });
-
         }
 
         add_filter('script_loader_tag', [$this, 'processAttributes'], 59, 3);
@@ -145,24 +130,22 @@ class EnqueueHandler implements EnqueueHandlerInterface
      * @param $source
      * @return string
      */
-    public function processAttributes($tag, $handle, $source)
+    public function processAttributes($tag, $handle, $source): string
     {
         if (isset($this->attributes[$handle])) {
             $attribute = $this->attributes[$handle];
             $attribute['src'] = $source;
             $attribute['id'] = $handle;
-            $tag = sprintf("<script %s></script>\n", wp_sanitize_script_attributes($attribute));
-
-            return $tag;
+            return sprintf("<script %s></script>\n", wp_sanitize_script_attributes($attribute));
         }
 
         return $tag;
     }
 
     /**
-     * @param $id
-     * @param $objectName
-     * @param $data
+     * @param  string  $id
+     * @param  string  $objectName
+     * @param  array  $data
      */
     public function localizeScript(string $id, string $objectName, array $data): void
     {
@@ -170,18 +153,19 @@ class EnqueueHandler implements EnqueueHandlerInterface
     }
 
     /**
-     * @param $data
-     * @param $option
+     * @param  string  $data
+     * @param  array  $option
      */
     public function inlineScript(string $data, array $option): void
     {
-        $id = gettype($option) == 'string' ? $option : ($option['id'] ?? ($option['handle'] ?? 'pluginMaster_'.uniqid()));
+        $id = gettype($option) == 'string' ? $option : ($option['id'] ?? ($option['handle'] ?? 'pluginMaster_'.uniqid(
+                )));
         wp_add_inline_script($id, $data, $option['position'] ?? 'after');
     }
 
     /**
-     * @param $data
-     * @param $handle
+     * @param  string  $data
+     * @param  string  $handle
      */
     public function inlineStyle(string $data, string $handle): void
     {
