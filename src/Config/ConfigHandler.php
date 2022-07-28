@@ -23,16 +23,16 @@ class ConfigHandler implements ConfigHandlerInterface
      * @param  string  $path
      * @return mixed
      */
-    public function setPath(string $path): string
+    public function setPath(string $path): void
     {
-        return $this->filePath = $path;
+        $this->filePath = $path;
     }
 
     /**
      * @param  string  $key
-     * @return array|mixed|null
+     * @return mixed|null
      */
-    public function resolveData(string $key): mixed
+    public function resolveData(string $key)
     {
         $key_tree = explode('.', $key);
 

@@ -30,7 +30,7 @@ class ActionHandler implements ActionHandlerInterface
      * @param  ApplicationInterface  $instance
      * @return $this
      */
-    public function setAppInstance(ApplicationInterface $instance): ActionHandlerInterface
+    public function setAppInstance(ApplicationInterface $instance): self
     {
         $this->appInstance = $instance;
         return $this;
@@ -40,7 +40,7 @@ class ActionHandler implements ActionHandlerInterface
      * @param  string  $namespace
      * @return $this
      */
-    public function setControllerNamespace(string $namespace): ActionHandlerInterface
+    public function setControllerNamespace(string $namespace): self
     {
         $this->controllerNamespace = $namespace;
         return $this;
@@ -57,10 +57,10 @@ class ActionHandler implements ActionHandlerInterface
 
     /**
      * @param  string  $name
-     * @param $callback string | callable
+     * @param string | callable $callback
      * @param  int  $priority
      */
-    public function add(string $name, $callback, $priority = 10): void
+    public function add(string $name, $callback, int $priority = 10): void
     {
         $options = [
             "methodSeparator" => $this->methodSeparator,

@@ -31,7 +31,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
     }
 
     /**
-     * @param  string  $enqueueFile
+     * @param string $enqueueFile
      */
     public function loadEnqueueFile(string $enqueueFile): void
     {
@@ -39,7 +39,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
     }
 
     /**
-     * @param  array  $config
+     * @param array $config
      */
     public function register(array $config): void
     {
@@ -143,9 +143,9 @@ class EnqueueHandler implements EnqueueHandlerInterface
     }
 
     /**
-     * @param  string  $id
-     * @param  string  $objectName
-     * @param  array  $data
+     * @param string $id
+     * @param string $objectName
+     * @param array $data
      */
     public function localizeScript(string $id, string $objectName, array $data): void
     {
@@ -153,22 +153,21 @@ class EnqueueHandler implements EnqueueHandlerInterface
     }
 
     /**
-     * @param  string  $data
-     * @param  array  $option
+     * @param string $data
+     * @param array $option
      */
     public function inlineScript(string $data, array $option): void
     {
-        $id = gettype($option) == 'string' ? $option : ($option['id'] ?? ($option['handle'] ?? 'pluginMaster_'.uniqid(
-                )));
+        $id = gettype($option) == 'string' ? $option : ($option['id'] ?? ($option['handle'] ?? 'pluginMaster_' . uniqid()));
         wp_add_inline_script($id, $data, $option['position'] ?? 'after');
     }
 
     /**
-     * @param  string  $data
-     * @param  string  $handle
+     * @param string $data
+     * @param string $handle
      */
     public function inlineStyle(string $data, string $handle): void
     {
-        wp_add_inline_style($handle ?? 'pluginMaster_'.uniqid(), $data);
+        wp_add_inline_style($handle ?? 'pluginMaster_' . uniqid(), $data);
     }
 }

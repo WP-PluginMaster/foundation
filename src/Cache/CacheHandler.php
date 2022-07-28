@@ -17,12 +17,12 @@ class CacheHandler implements CacheHandlerInterface
     protected string $cachePath;
 
     /**
-     * @param  string  $fileName
-     * @param  string  $content
-     * @param  string  $directory
-     * @return false|int
+     * @param string $fileName
+     * @param string $content
+     * @param string $directory
+     * @return bool
      */
-    public function createFile(string $fileName, string $content, string $directory = ''): int|false
+    public function createFile(string $fileName, string $content, string $directory = ''): bool
     {
         $this->createDir($directory);
 
