@@ -4,6 +4,7 @@ namespace PluginMaster\Foundation\SideMenu;
 
 use PluginMaster\Contracts\Foundation\ApplicationInterface;
 use PluginMaster\Contracts\SideMenu\SideMenuHandlerInterface;
+use PluginMaster\Contracts\SideMenu\SideMenuInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
 use WP_Error;
 
@@ -69,6 +70,43 @@ class SideMenuHandler implements SideMenuHandlerInterface
 
         $this->fileLoad = false;
         return $this;
+    }
+
+    /**
+     * @param SideMenuInterface $sideMenuObject
+     */
+    public function setSideMenu(SideMenuInterface $sideMenuObject): void
+    {
+        foreach ($sideMenuObject->getData() as $sidemenu){
+
+            $pageTitle = __($sidemenu['title'], $this->appInstance->config('slug'));
+            $menuTitle = __($sidemenu['menu_title'], $this->appInstance->config('slug'));
+
+            if(isset($sidemenu['submenu'])){
+
+                add_submenu_page(
+                    $sidemenu['parent_slug'],
+                    $pageTitle,
+                    $menuTitle,
+                    $options['capability'] ?? 'manage_options',
+                    $sidemenu['slug'],
+                    $sidemenu['callback'] ?? $this->getCallback($sidemenu['callback']),
+                    $options['position'] ?? 10
+                );
+
+            }else{
+
+                add_menu_page(
+                    $pageTitle,
+                    $menuTitle,
+                    $sidemenu['capability'] ?? 'manage_options',
+                    $sidemenu['slug'],
+                    $sidemenu['callback'] ?? $this->getCallback($sidemenu['callback']),
+                    $options['icon'] ?? '',
+                    $options['position'] ?? 100
+                );
+            }
+        }
     }
 
 
