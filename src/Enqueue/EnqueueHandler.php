@@ -3,7 +3,10 @@
 namespace PluginMaster\Foundation\Enqueue;
 
 
+use PluginMaster\Bootstrap\System\Enqueue;
+use PluginMaster\Bootstrap\System\Helpers\App;
 use PluginMaster\Contracts\Enqueue\EnqueueHandlerInterface;
+use PluginMaster\Contracts\Enqueue\EnqueueInterface;
 use PluginMaster\Contracts\Foundation\ApplicationInterface;
 
 class EnqueueHandler implements EnqueueHandlerInterface
@@ -39,60 +42,51 @@ class EnqueueHandler implements EnqueueHandlerInterface
     }
 
     /**
-     * @param array $config
-     */
-    public function register(array $config): void
-    {
-        $this->enqueueData[] = $config;
-    }
-
-    /**
      * initiate Enqueue
      */
-    public function initEnqueue(): void
+    public function initEnqueue(EnqueueInterface $enqueue): void
     {
         $version = $this->appInstance->version();
 
         $hookBasedEnqueue = [];
-        foreach ($this->enqueueData as $enqueue) {
+        foreach ($enqueue->getData() as $enqueue) {
+
+            $hook = $enqueue['hook'];
+
             if (isset($enqueue['type'])) {
-                $hookBasedEnqueue[$enqueue['hook']]['inline'][] = [
+                $hookBasedEnqueue[$hook]['inline'][] = [
                     'fn' => $enqueue['type'],
                     'param' => $enqueue['param']
                 ];
             } else {
+
                 $path = $this->formatPath($enqueue['path'], $enqueue['cdn'] ?? false);
-                if (gettype($enqueue['options']) == 'string') {
-                    $id = $enqueue['options'];
-                    $dependency = [];
-                } else {
-                    $id = ($enqueue['options']['id'] ?? ($enqueue['options']['handle'] ?? base64_encode($path)));
-                    $dependency = $enqueue['options']['dependency'] ?? ($enqueue['options']['deps'] ?? []);
-                }
+                $id = ($enqueue['id'] ?? base64_encode($path));
+                $dependency = $enqueue['dependency'] ?? [];
 
                 $script = $enqueue['script'] ?? false;
 
                 if ($script) {
-                    $attribute = $enqueue['options']['attributes'] ?? false;
+                    $attribute = $enqueue['attributes'] ?? false;
 
                     if ($attribute && is_array($attribute)) {
                         $this->attributes[$id] = $attribute;
                     }
 
-                    $hookBasedEnqueue[$enqueue['hook']]['script'][] = [
+                    $hookBasedEnqueue[$hook]['script'][] = [
                         $id,
                         $path,
                         $dependency,
-                        $version,
+                        $enqueue['version'] ?? $version,
                         $enqueue['in_footer'] ?? false
                     ];
                 } else {
-                    $hookBasedEnqueue[$enqueue['hook']]['style'][] = [
+                    $hookBasedEnqueue[$hook]['style'][] = [
                         $id,
                         $path,
                         $dependency,
-                        $version,
-                        $options['media'] ?? 'all'
+                        $enqueue['version'] ?? $version,
+                        $enqueue['media'] ?? 'all'
                     ];
                 }
             }
@@ -158,7 +152,8 @@ class EnqueueHandler implements EnqueueHandlerInterface
      */
     public function inlineScript(string $data, array $option): void
     {
-        $id = gettype($option) == 'string' ? $option : ($option['id'] ?? ($option['handle'] ?? 'pluginMaster_' . uniqid()));
+        $id = gettype($option) == 'string' ? $option : ($option['id'] ?? ($option['handle'] ?? 'pluginMaster_' . uniqid(
+                )));
         wp_add_inline_script($id, $data, $option['position'] ?? 'after');
     }
 
