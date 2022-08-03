@@ -3,8 +3,6 @@
 
 namespace PluginMaster\Foundation\Api;
 
-use DI\DependencyException;
-use DI\NotFoundException;
 use Exception;
 use PluginMaster\Contracts\Api\ApiHandlerInterface;
 use PluginMaster\Contracts\Foundation\ApplicationInterface;
@@ -13,11 +11,6 @@ use WP_REST_Request;
 
 class ApiHandler implements ApiHandlerInterface
 {
-
-    /**
-     * @var bool
-     */
-    public bool $fileLoad = false;
 
     /**
      * @var ApplicationInterface
@@ -122,14 +115,11 @@ class ApiHandler implements ApiHandlerInterface
 
     /**
      * @param $routes
+     * @return \PluginMaster\Foundation\Api\ApiHandler
      */
     public function loadRoutes($routes): self
     {
-        $this->fileLoad = true;
-
         require $routes;
-
-        $this->fileLoad = false;
 
         return $this;
     }
@@ -188,9 +178,9 @@ class ApiHandler implements ApiHandlerInterface
      *
      * @param  string  $route
      *
-     * @return string|string[]
+     * @return string
      */
-    protected function formatApiPath(string $route)
+    protected function formatApiPath(string $route): string
     {
         if (str_contains($route, '}')) {
             if (str_contains($route, '?}')) {
@@ -234,12 +224,12 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param  string  $callback
-     * @param  string  $methods
+     * @param mixed $callback
+     * @param string $methods
      *
      * @return array
      */
-    protected function generateApiCallback(mixed $callback, string $methods): array
+    protected function generateApiCallback( $callback, string $methods): array
     {
         $options = [
             "methodSeparator" => $this->methodSeparator,
@@ -265,8 +255,6 @@ class ApiHandler implements ApiHandlerInterface
      * @param  string  $middleware
      *
      * @return array|bool
-     * @throws DependencyException
-     * @throws NotFoundException
      */
     protected function resolveMiddleware(string $middleware)
     {
@@ -282,9 +270,9 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param $restNamespace
-     * @param $route
-     * @param $options
+     * @param string $restNamespace
+     * @param string $route
+     * @param array $options
      *
      * @return bool
      */
@@ -301,7 +289,7 @@ class ApiHandler implements ApiHandlerInterface
      * @param  WP_REST_Request  $request
      * @return mixed
      */
-    public function resolveDynamicCallback(WP_REST_Request $request): mixed
+    public function resolveDynamicCallback(WP_REST_Request $request)
     {
         $requestMethod = strtolower($request->get_method());
 
