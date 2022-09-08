@@ -2,20 +2,12 @@
 
 namespace PluginMaster\Foundation\Enqueue;
 
-
-use PluginMaster\Bootstrap\System\Enqueue;
-use PluginMaster\Bootstrap\System\Helpers\App;
 use PluginMaster\Contracts\Enqueue\EnqueueHandlerInterface;
 use PluginMaster\Contracts\Enqueue\EnqueueInterface;
 use PluginMaster\Contracts\Foundation\ApplicationInterface;
 
 class EnqueueHandler implements EnqueueHandlerInterface
 {
-    /**
-     * @var array
-     */
-    public array $enqueueData = [];
-
     /**
      * @var array
      */
@@ -105,7 +97,7 @@ class EnqueueHandler implements EnqueueHandlerInterface
                 foreach ($enqueueData['style'] ?? [] as $enqueue) {
                     wp_enqueue_style(...$enqueue);
                 }
-            });
+            }, 12);
         }
 
         add_filter('script_loader_tag', [$this, 'processAttributes'], 59, 3);
