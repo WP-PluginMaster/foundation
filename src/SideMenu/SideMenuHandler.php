@@ -6,6 +6,7 @@ use PluginMaster\Contracts\Foundation\ApplicationInterface;
 use PluginMaster\Contracts\SideMenu\SideMenuHandlerInterface;
 use PluginMaster\Contracts\SideMenu\SideMenuInterface;
 use PluginMaster\Foundation\Resolver\CallbackResolver;
+use WP_Error;
 
 class SideMenuHandler implements SideMenuHandlerInterface
 {
@@ -37,11 +38,6 @@ class SideMenuHandler implements SideMenuHandlerInterface
     protected array $parentSlug = [];
 
     /**
-     * @var array
-     */
-    protected array $subMenus = [];
-
-    /**
      * @param  ApplicationInterface  $instance
      * @return $this
      */
@@ -68,8 +64,11 @@ class SideMenuHandler implements SideMenuHandlerInterface
      */
     public function loadMenuFile(string $sidemenu): self
     {
+        $this->fileLoad = true;
+
         require $sidemenu;
 
+        $this->fileLoad = false;
         return $this;
     }
 
@@ -78,58 +77,47 @@ class SideMenuHandler implements SideMenuHandlerInterface
      */
     public function setSideMenu(SideMenuInterface $sideMenuObject): void
     {
-        foreach ($sideMenuObject->getData() as $sidemenu){
+        foreach ($sideMenuObject->getData() as $key => $sidemenu){
+            if($key == 0){
+                $this->parentSlug[] =  $sidemenu['slug'];
+            }
 
             $pageTitle = __($sidemenu['title'], $this->appInstance->config('slug'));
             $menuTitle = __($sidemenu['menu_title'], $this->appInstance->config('slug'));
-            $callback =  isset($sidemenu['callback']) ? $this->getCallback($sidemenu['callback']): '';
 
-            if(isset($sidemenu['submenu'])) {
-                $this->subMenus[] = [
+            if(isset($sidemenu['submenu'])){
+
+                add_submenu_page(
                     $sidemenu['parent_slug'],
                     $pageTitle,
                     $menuTitle,
                     $options['capability'] ?? 'manage_options',
                     $sidemenu['slug'],
-                    $callback,
+                    isset($sidemenu['callback']) ? $this->getCallback($sidemenu['callback']) : '',
                     $options['position'] ?? 10
-                ];
+                );
 
-            } else {
+            }else{
 
                 add_menu_page(
                     $pageTitle,
                     $menuTitle,
                     $sidemenu['capability'] ?? 'manage_options',
                     $sidemenu['slug'],
-                    $callback,
+                    isset($sidemenu['callback']) ? $this->getCallback($sidemenu['callback']) : '',
                     $options['icon'] ?? '',
                     $options['position'] ?? 100
                 );
-
-                $this->parentSlug[] = $sidemenu['slug'];
             }
         }
-
-        foreach ($this->subMenus as $subMenu){
-            add_submenu_page(...$subMenu);
-        }
-
-        $this->removeFirstSubMenu();
     }
 
-    /**
-     * @param $callback
-     * @return callable|string
-     */
+
     private function getCallback($callback)
     {
         return $callback ? CallbackResolver::resolve($callback, $this->callbackResolverOptions()) : '';
     }
 
-    /**
-     * @return array
-     */
     private function callbackResolverOptions(): array
     {
         return [
@@ -148,4 +136,5 @@ class SideMenuHandler implements SideMenuHandlerInterface
             remove_submenu_page($slug, $slug);
         }
     }
+
 }
