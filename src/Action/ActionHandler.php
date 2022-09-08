@@ -67,7 +67,6 @@ class ActionHandler implements ActionHandlerInterface
             'namespace' => $this->controllerNamespace,
             'container' => $this->appInstance
         ];
-
         add_action($name, CallbackResolver::resolve($callback, $options), $priority, 20);
     }
 

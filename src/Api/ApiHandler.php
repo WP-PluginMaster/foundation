@@ -13,6 +13,11 @@ class ApiHandler implements ApiHandlerInterface
 {
 
     /**
+     * @var bool
+     */
+    public bool $fileLoad = false;
+
+    /**
      * @var ApplicationInterface
      */
     public ApplicationInterface $appInstance;
@@ -115,11 +120,14 @@ class ApiHandler implements ApiHandlerInterface
 
     /**
      * @param $routes
-     * @return \PluginMaster\Foundation\Api\ApiHandler
      */
     public function loadRoutes($routes): self
     {
+        $this->fileLoad = true;
+
         require $routes;
+
+        $this->fileLoad = false;
 
         return $this;
     }
@@ -178,12 +186,14 @@ class ApiHandler implements ApiHandlerInterface
      *
      * @param  string  $route
      *
-     * @return string
+     * @return string|string[]
      */
-    protected function formatApiPath(string $route): string
+    protected function formatApiPath(string $route)
     {
-        if (str_contains($route, '}')) {
-            if (str_contains($route, '?}')) {
+
+
+        if (strpos($route, '}') !== false) {
+            if (strpos($route, '?}') !== false) {
                 $route = $this->optionalParam($route);
             } else {
                 $route = $this->requiredParam($route);
@@ -224,12 +234,12 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param mixed $callback
-     * @param string $methods
+     * @param  string  $callback
+     * @param  string  $methods
      *
      * @return array
      */
-    protected function generateApiCallback( $callback, string $methods): array
+    protected function generateApiCallback($callback, string $methods): array
     {
         $options = [
             "methodSeparator" => $this->methodSeparator,
@@ -270,9 +280,9 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param string $restNamespace
-     * @param string $route
-     * @param array $options
+     * @param $restNamespace
+     * @param $route
+     * @param $options
      *
      * @return bool
      */

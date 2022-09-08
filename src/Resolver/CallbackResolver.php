@@ -12,7 +12,7 @@ class CallbackResolver
      * @param  array  $options
      * @return callable
      */
-    public static function resolve(mixed $callback, array $options = []): callable
+    public static function resolve($callback, array $options = []): callable
     {
         $methodSeparator = $options['methodSeparator'] ?? '@';
         $namespace = $options['namespace'] ?? '';
