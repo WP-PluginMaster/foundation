@@ -2,6 +2,7 @@
 
 namespace PluginMaster\Foundation\Resolver;
 
+use PluginMaster\Contracts\DIC\DependencyInjectionContract;
 use WP_Error;
 
 class CallbackResolver
@@ -16,6 +17,7 @@ class CallbackResolver
     {
         $methodSeparator = $options['methodSeparator'] ?? '@';
         $namespace = $options['namespace'] ?? '';
+        /** @var DependencyInjectionContract $container */
         $container = $options['container'] ?? null;
 
         $object = false;
