@@ -1,7 +1,6 @@
 <?php
 
-namespace  PluginMaster\Foundation\DIC;
-
+namespace PluginMaster\Foundation\DIC;
 
 use Exception;
 use PluginMaster\Contracts\DIC\DependencyInjectionContract;
@@ -51,7 +50,6 @@ class DependencyInjectionContainer implements DependencyInjectionContract
         $method = $resolvedCallable[1];
 
         $object = is_object($classOrObject) ? $classOrObject : $this->make($classOrObject, $parameters);
-
 
 
         /** @var ReflectionMethod $methodReflection */
@@ -105,7 +103,11 @@ class DependencyInjectionContainer implements DependencyInjectionContract
             $type = $constructorParam->getType();
 
             if ($type instanceof ReflectionNamedType) {
-                $dependencies[] = $constructorParam->getClass()->newInstance();
+                $instance = $constructorParam->getType() && !$constructorParam->getType()->isBuiltin()
+                    ? $this->make($constructorParam->getType()->getName())
+                    : $constructorParam->getClass()->newInstance();
+
+                $dependencies[] = $instance;
             } else {
                 $name = $constructorParam->getName();
 
