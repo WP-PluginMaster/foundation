@@ -67,7 +67,7 @@ class ApiHandler implements ApiHandlerInterface
     /**
      * set rest api namespace
      *
-     * @param  ApplicationInterface  $instance
+     * @param ApplicationInterface $instance
      *
      * @return $this
      */
@@ -81,7 +81,7 @@ class ApiHandler implements ApiHandlerInterface
     /**
      * set rest api namespace
      *
-     * @param  string  $namespace
+     * @param string $namespace
      *
      * @return self
      */
@@ -137,7 +137,7 @@ class ApiHandler implements ApiHandlerInterface
      * register rest api
      *
      * @param $api
-     * @param  bool  $dynamicRoute
+     * @param bool $dynamicRoute
      *
      * @throws Exception
      */
@@ -174,9 +174,14 @@ class ApiHandler implements ApiHandlerInterface
                 $this,
                 'check_permission'
             ];
+        } else {
+            $options['permission_callback'] = [
+                $this,
+                'publicApi'
+            ];
         }
 
-        $restBase = $prefix.'/'.$formattedRoute.($this->dynamicRoute ? '(?:/(?P<action>[-\w]+))?' : '');
+        $restBase = $prefix . '/' . $formattedRoute . ($this->dynamicRoute ? '(?:/(?P<action>[-\w]+))?' : '');
 
         return $this->generateWordPressRestAPi($this->restNamespace, $restBase, $options);
     }
@@ -184,14 +189,12 @@ class ApiHandler implements ApiHandlerInterface
     /**
      * format route param for Optional Parameter or Required Parameter
      *
-     * @param  string  $route
+     * @param string $route
      *
      * @return string|string[]
      */
     protected function formatApiPath(string $route)
     {
-
-
         if (strpos($route, '}') !== false) {
             if (strpos($route, '?}') !== false) {
                 $route = $this->optionalParam($route);
@@ -204,7 +207,7 @@ class ApiHandler implements ApiHandlerInterface
     }
 
     /**
-     * @param  string  $route
+     * @param string $route
      *
      * @return string
      */
@@ -212,33 +215,23 @@ class ApiHandler implements ApiHandlerInterface
     {
         preg_match_all('#\{(.*?)\}#', $route, $match);
         foreach ($match[0] as $k => $v) {
-            $route = str_replace('/'.$v, '(?:/(?P<'.str_replace('?', '', $match[1][$k]).'>[-\w]+))?', $route);
+            $route = str_replace('/' . $v, '(?:/(?P<' . str_replace('?', '', $match[1][$k]) . '>[-\w]+))?', $route);
         }
 
         return $route;
     }
 
-    /**
-     * @param  string  $route
-     *
-     * @return string
-     */
+
     protected function requiredParam(string $route): string
     {
         preg_match_all('#\{(.*?)\}#', $route, $match);
         foreach ($match[0] as $k => $v) {
-            $route = str_replace($v, '(?P<'.$match[1][$k].'>[-\w]+)', $route);
+            $route = str_replace($v, '(?P<' . $match[1][$k] . '>[-\w]+)', $route);
         }
 
         return $route;
     }
 
-    /**
-     * @param  string  $callback
-     * @param  string  $methods
-     *
-     * @return array
-     */
     protected function generateApiCallback($callback, string $methods): array
     {
         $options = [
@@ -261,11 +254,6 @@ class ApiHandler implements ApiHandlerInterface
         ];
     }
 
-    /**
-     * @param  string  $middleware
-     *
-     * @return array|bool
-     */
     protected function resolveMiddleware(string $middleware)
     {
         if (isset($this->middlewareList[$middleware])) {
@@ -279,13 +267,6 @@ class ApiHandler implements ApiHandlerInterface
         return false;
     }
 
-    /**
-     * @param $restNamespace
-     * @param $route
-     * @param $options
-     *
-     * @return bool
-     */
     protected function generateWordPressRestAPi(string $restNamespace, string $route, array $options): bool
     {
         return register_rest_route(
@@ -295,10 +276,6 @@ class ApiHandler implements ApiHandlerInterface
         );
     }
 
-    /**
-     * @param  WP_REST_Request  $request
-     * @return mixed
-     */
     public function resolveDynamicCallback(WP_REST_Request $request)
     {
         $requestMethod = strtolower($request->get_method());
@@ -311,11 +288,6 @@ class ApiHandler implements ApiHandlerInterface
         return $controllerInstance->{$methodName}($request);
     }
 
-    /**
-     * @param  string  $method
-     * @param  string  $action
-     * @return string
-     */
     private function makeMethodName(string $method, string $action): string
     {
         $segments = explode('-', $action);
@@ -324,15 +296,17 @@ class ApiHandler implements ApiHandlerInterface
             $slug .= ucfirst($part);
         }
 
-        return $method.$slug;
+        return $method . $slug;
     }
 
-    /**
-     * @return bool
-     */
     public function check_permission(): bool
     {
         return current_user_can('manage_options');
+    }
+
+    public function publicApi(): bool
+    {
+        return true;
     }
 
 }
