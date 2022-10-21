@@ -91,10 +91,10 @@ class SideMenuHandler implements SideMenuHandlerInterface
                     $sidemenu['parent_slug'],
                     $pageTitle,
                     $menuTitle,
-                    $options['capability'] ?? 'manage_options',
+                    $sidemenu['capability'] ?? 'manage_options',
                     $sidemenu['slug'],
                     isset($sidemenu['callback']) ? $this->getCallback($sidemenu['callback']) : '',
-                    $options['position'] ?? 10
+                    $sidemenu['position'] ?? 10
                 );
 
             }else{
@@ -105,8 +105,8 @@ class SideMenuHandler implements SideMenuHandlerInterface
                     $sidemenu['capability'] ?? 'manage_options',
                     $sidemenu['slug'],
                     isset($sidemenu['callback']) ? $this->getCallback($sidemenu['callback']) : '',
-                    $options['icon'] ?? '',
-                    $options['position'] ?? 100
+                    $sidemenu['icon'] ?? '',
+                    $sidemenu['position'] ?? 100
                 );
             }
         }
